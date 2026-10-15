@@ -81,7 +81,8 @@ export async function startOAuth(slug: string, provider: OAuthProvider, metaCapa
   const blocker = sensitiveBlocker(ctx);
   if (blocker) return refuse(blocker.ok ? "failed" : blocker.code === "requires_verified_email" ? "requires_verified_email" : "requires_recent_auth");
   const adapter = oauthAdapter(provider);
-  if (!adapter || !adapter.configured() || !capability(provider).configured) return refuse("not_configured");
+  // Tokens are only accepted when they can be sealed (DEC-016), so the start refuses without custody too.
+  if (!adapter || !adapter.configured() || !capability(provider).configured || !capability("credential_custody").configured) return refuse("not_configured");
 
   const state = generateToken(32);
   const scopes = requestedScopes(provider, metaCapability);

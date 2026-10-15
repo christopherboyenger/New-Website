@@ -43,7 +43,9 @@
     ".next-ads/types/**/*.ts",
     ".next-ads/dev/types/**/*.ts",
     ".next-people/types/**/*.ts",
-    ".next-people/dev/types/**/*.ts"
+    ".next-people/dev/types/**/*.ts",
+    ".next-marketing/types/**/*.ts",
+    ".next-marketing/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

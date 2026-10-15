@@ -188,7 +188,7 @@ export type DisconnectOutcome = "disconnected" | "revocation_pending";
  * failure leaves `revocation_pending`; local disconnection still blocks work.
  */
 export async function disconnectIntegration(slug: string, provider: IntegrationProvider): Promise<ActionResult<{ outcome: DisconnectOutcome }>> {
-  return runAction(async () => {
+  return runAction<{ outcome: DisconnectOutcome }>(async () => {
     const gate = await requireSensitiveAction(slug, "integrations:manage");
     if (!gate.ok) return gate.result;
     const { ctx } = gate;
@@ -207,8 +207,9 @@ export async function disconnectIntegration(slug: string, provider: IntegrationP
       }
     }
 
+    const ref = { id: installation.id, orgId: ctx.org.id, generation: installation.generation };
     const disabled = await db.transaction(async (tx) => {
-      const applied = await updateGeneration(tx, owner, {
+      const applied = await updateGeneration(tx, ref, {
         status: "disconnected",
         generation: installation.generation + 1,
         revokedAt: new Date(),
@@ -231,7 +232,7 @@ export async function disconnectIntegration(slug: string, provider: IntegrationP
         await recordAudit({ orgId: ctx.org.id, actorUserId: ctx.user.id, action: "integration.revoked", targetType: "integration", targetId: installation.id, data: { provider } });
       } catch {
         const category: IntegrationErrorCategory = "revocation_failed";
-        await updateGeneration(db, { ...owner, generation: installation.generation + 1 }, { status: "revocation_pending", lastErrorCategory: category, lastErrorAt: new Date() });
+        await updateGeneration(db, { ...ref, generation: installation.generation + 1 }, { status: "revocation_pending", lastErrorCategory: category, lastErrorAt: new Date() });
         await recordAudit({
           orgId: ctx.org.id,
           actorUserId: ctx.user.id,

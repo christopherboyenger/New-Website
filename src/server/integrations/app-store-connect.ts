@@ -86,7 +86,7 @@ export interface AppStoreConnectResult {
 }
 
 export async function connectAppStoreConnect(slug: string, input: unknown): Promise<ActionResult<AppStoreConnectResult>> {
-  return runAction(async () => {
+  return runAction<AppStoreConnectResult>(async () => {
     const gate = await requireSensitiveAction(slug, "integrations:manage");
     if (!gate.ok) return gate.result;
     const { ctx } = gate;

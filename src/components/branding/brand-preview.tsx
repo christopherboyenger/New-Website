@@ -50,7 +50,7 @@ export function BrandPreview({ values, fallbackColor }: { values: BrandPreviewVa
       <div className="h-24 bg-selected" style={{ backgroundColor: color, opacity: 0.9 }} aria-hidden="true" />
       <div className="px-4 pb-5">
         <div
-          className="-mt-7 flex size-14 items-center justify-center rounded-full border-4 border-surface text-base font-bold"
+          className="relative -mt-7 flex size-14 items-center justify-center rounded-full border-4 border-surface text-base font-bold"
           style={{ backgroundColor: color, color: contrastText(color) }}
           aria-hidden="true"
         >

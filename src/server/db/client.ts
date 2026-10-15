@@ -50,7 +50,7 @@ async function createDb(): Promise<Db> {
   const { drizzle } = await import("drizzle-orm/pglite");
   const { mkdir } = await import("node:fs/promises");
   const { dirname, resolve } = await import("node:path");
-  const dataDir = resolve(PGLITE_DIR ?? ".data/pglite");
+  const dataDir = resolve(/*turbopackIgnore: true*/ PGLITE_DIR ?? ".data/pglite");
   await mkdir(dirname(dataDir), { recursive: true });
   const client = new PGlite(dataDir);
   const { rows } = await client.query<{ present: boolean }>("select to_regclass('public.organizations') is not null as present");
