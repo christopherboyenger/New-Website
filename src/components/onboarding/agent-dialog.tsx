@@ -82,8 +82,8 @@ export function AgentDialogButton({ connection, productName }: { connection: Age
             <ConnectInstructions url={connection.url} clientLabel={client.label} productName={productName} />
           ) : (
             <NotConfiguredNotice title="Agent connection isn’t available yet">
-              {productName}’s MCP server hasn’t been deployed, so there is no connector URL to add to {client.label} yet. You can finish setup here
-              without it.
+              The {productName} MCP server hasn’t been deployed, so there is no connector URL to add to {client.label} yet. You can finish setup
+              here without it.
             </NotConfiguredNotice>
           )}
         </div>

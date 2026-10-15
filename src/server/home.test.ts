@@ -5,7 +5,7 @@ import { createTestDb } from "../../tests/support/db";
 import { addDailyMetric, addObservation, makeCampaign, makeCreator, makeOrg, makePost, makeUser } from "../../tests/support/factories";
 import { getDb } from "./db/client";
 import { integrationInstallations, userFlags } from "./db/schema";
-import { loadActiveCampaigns, loadAdReportingState, loadHomeMetrics, loadRecentPosts, loadRollingCounters, loadShellState } from "./home";
+import { loadActiveCampaigns, loadAdReportingState, loadHomeMetrics, loadOrganicSummary, loadRecentPosts, loadRollingCounters, loadShellState } from "./home";
 
 const range = { from: "2026-10-01", to: "2026-10-07" };
 
@@ -26,6 +26,7 @@ describe("home data", () => {
     expect(counters.last60m).toEqual({ status: "available", value: 0, observedThrough: null });
 
     const metrics = await loadHomeMetrics(org.id, range);
+    if (metrics.organic.status !== "available") throw new Error("expected organic views to be available");
     expect(metrics.organic.totalViews).toBe(0);
     expect(metrics.organic.series).toHaveLength(7);
     expect(metrics.organic.series.every((p) => p.views === 0)).toBe(true);
@@ -44,6 +45,19 @@ describe("home data", () => {
     expect(counters.last24h.status).toBe("unavailable");
     expect(counters.last60m.status).toBe("unavailable");
     if (counters.last24h.status === "unavailable") expect(counters.last24h.reason).toMatch(/no metrics source/i);
+    const organic = await loadOrganicSummary(org.id, range);
+    expect(organic).toEqual({ status: "unavailable", reason: expect.stringMatching(/no metrics source/i) });
+  });
+
+  it("reports a period without views as a confirmed zero once any metrics have been recorded", async () => {
+    const { org } = await makeOrg();
+    const creator = await makeCreator();
+    const campaign = await makeCampaign(org.id);
+    const post = await makePost(org.id, creator.id, { campaignId: campaign.id });
+    await addDailyMetric(post, "2026-09-01", 400, 0);
+    const organic = await loadOrganicSummary(org.id, range);
+    expect(organic.status).toBe("available");
+    if (organic.status === "available") expect(organic.totalViews).toBe(0);
   });
 
   it("computes rolling views from observations with their freshness", async () => {
@@ -83,6 +97,7 @@ describe("home data", () => {
     await addDailyMetric(foreign, "2026-10-03", 80_000, 8_000);
 
     const metrics = await loadHomeMetrics(org.id, range);
+    if (metrics.organic.status !== "available") throw new Error("expected organic views to be available");
     expect(metrics.organic.totalViews).toBe(5_200);
     expect(metrics.organic.series.find((p) => p.day === "2026-10-04")?.views).toBe(3_000);
     expect(metrics.organic.series.find((p) => p.day === "2026-10-05")?.views).toBe(0);

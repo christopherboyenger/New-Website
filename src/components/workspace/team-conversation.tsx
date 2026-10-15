@@ -256,7 +256,7 @@ export function TeamConversation({ orgSlug, orgName, onUnreadChange }: { orgSlug
           <p id={hintId} className={cn("text-[11px]", remaining <= SHOW_COUNTER_WITHIN ? "text-warning" : "text-muted")}>
             {remaining <= SHOW_COUNTER_WITHIN ? `${remaining.toLocaleString()} characters left` : "Enter to send · Shift+Enter for a new line"}
           </p>
-          <Button type="submit" size="sm" loading={sending} disabled={!draft.trim()}>
+          <Button type="submit" size="sm" loading={sending} disabled={!draft.trim()} className="max-md:min-h-11 max-md:px-4">
             Send
           </Button>
         </div>

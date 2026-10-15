@@ -70,19 +70,45 @@ export async function loadRollingCounters(orgId: string, now: Date = new Date())
  * Home: "Your metrics"
  * ------------------------------------------------------------------------- */
 
-export interface OrganicSummary {
-  totalViews: number;
-  /** One point per UTC day in the range; days without metric rows are confirmed zero days. */
-  series: Array<{ day: string; views: number }>;
-}
+/**
+ * Organic views for the selected range. Mirrors DEC-013: a workspace without
+ * approved posts is a confirmed zero; approved posts that no metrics source
+ * has ever reported on are "unavailable", never zero.
+ */
+export type OrganicSummary =
+  | {
+      status: "available";
+      totalViews: number;
+      /** One point per UTC day in the range; days without metric rows are confirmed zero days. */
+      series: Array<{ day: string; views: number }>;
+    }
+  | { status: "unavailable"; reason: string };
 
 export async function loadOrganicSummary(orgId: string, range: DateRange): Promise<OrganicSummary> {
   const report = await dailyReport(orgId, { range, groupBy: [], metrics: ["views"] });
+  const totalViews = report.totals.views ?? 0;
+  if (totalViews === 0 && (await awaitingFirstMetrics(orgId))) {
+    return { status: "unavailable", reason: "No metrics source has reported views for your posts yet." };
+  }
   const byDay = new Map(report.data.map((row) => [row.date, row.views ?? 0]));
   return {
-    totalViews: report.totals.views ?? 0,
+    status: "available",
+    totalViews,
     series: eachDay(range).map((day) => ({ day, views: byDay.get(day) ?? 0 })),
   };
+}
+
+/** True when the workspace has approved posts but no daily metric row has ever been recorded for it. */
+async function awaitingFirstMetrics(orgId: string): Promise<boolean> {
+  const db = await getDb();
+  const [post] = await db
+    .select({ id: posts.id })
+    .from(posts)
+    .where(and(eq(posts.orgId, orgId), eq(posts.reviewStatus, "approved")))
+    .limit(1);
+  if (!post) return false;
+  const [metric] = await db.select({ postId: postDailyMetrics.postId }).from(postDailyMetrics).where(eq(postDailyMetrics.orgId, orgId)).limit(1);
+  return !metric;
 }
 
 export type AdProvider = "meta_ads" | "tiktok_ads";

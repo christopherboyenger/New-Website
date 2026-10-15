@@ -26,7 +26,7 @@ export default async function LivePage({ params }: { params: Promise<{ org: stri
   return (
     <div className="relative flex min-h-[calc(100dvh-10rem)] flex-col overflow-hidden px-4 py-5 sm:px-6">
       <AutoRefresh intervalMs={REFRESH_MS} />
-      <div className="relative z-10 max-w-md">
+      <div className="relative z-10 max-w-md lg:max-w-[360px]">
         <RollingViewCounters counters={counters} />
         <h1 className="mt-6 flex items-center gap-2 text-lg font-semibold text-ink">
           <span className="relative inline-flex size-2.5" aria-hidden="true">
@@ -42,10 +42,11 @@ export default async function LivePage({ params }: { params: Promise<{ org: stri
         </p>
         <p className="mt-2 text-[12px] text-muted">Counters refresh every minute while this page is open.</p>
       </div>
-      <div className="pointer-events-none mt-8 flex flex-1 items-center justify-center md:absolute md:inset-0 md:mt-0 md:p-8">
+      {/* Large screens: the globe fills the panel to the right of the text column; smaller screens stack it below. */}
+      <div className="pointer-events-none mt-8 flex flex-1 items-center justify-center lg:absolute lg:inset-y-0 lg:left-[400px] lg:right-0 lg:mt-0 lg:p-8">
         <GlobeIllustration
           label="Globe of creator locations. No locations are shown because location data isn't available yet."
-          className="w-full max-w-[420px] md:h-full md:max-h-[720px] md:w-auto md:max-w-full"
+          className="w-full max-w-[420px] lg:h-full lg:max-h-[760px] lg:w-auto lg:max-w-full"
         />
       </div>
     </div>

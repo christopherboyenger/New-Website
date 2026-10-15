@@ -5,6 +5,7 @@ import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } f
 import { AlertCircle, BookOpenText, FileText, Loader2, PlaySquare, Search, Target, UserRound, type LucideIcon } from "lucide-react";
 import { searchWorkspaceAction, type SearchResultItem, type SearchResultKind, type SearchResults } from "@/server/search";
 import { cn } from "@/lib/cn";
+import { useModalDialog } from "./use-modal-dialog";
 
 /**
  * Command-style global search (L24). Opens from the sidebar trigger and
@@ -19,40 +20,15 @@ export interface SearchDialogProps {
 }
 
 export function SearchDialog({ open, onClose, orgSlug }: SearchDialogProps) {
-  const ref = useRef<HTMLDialogElement>(null);
-  const returnFocus = useRef<HTMLElement | null>(null);
+  const { ref, onBackdropClick } = useModalDialog(open, onClose);
   const titleId = useId();
-
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    if (open && !dialog.open) {
-      returnFocus.current = document.activeElement as HTMLElement | null;
-      dialog.showModal();
-    } else if (!open && dialog.open) {
-      dialog.close();
-    }
-  }, [open]);
-
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    const handleClose = () => {
-      returnFocus.current?.focus?.();
-      onClose();
-    };
-    dialog.addEventListener("close", handleClose);
-    return () => dialog.removeEventListener("close", handleClose);
-  }, [onClose]);
 
   return (
     <dialog
       ref={ref}
       aria-labelledby={titleId}
       className="mx-auto mb-auto mt-[8vh] w-[calc(100%-1.5rem)] max-w-xl overflow-hidden rounded-[14px] border border-line bg-surface p-0 text-ink shadow-2xl"
-      onClick={(event) => {
-        if (event.target === ref.current) ref.current?.close();
-      }}
+      onClick={onBackdropClick}
     >
       <h2 id={titleId} className="sr-only">
         Search
@@ -234,7 +210,7 @@ function SearchPanel({ orgSlug, onDone }: { orgSlug: string; onDone: () => void 
         {settled && items.length === 0 ? (
           <div className="px-3 py-8 text-center">
             <p className="text-sm font-medium text-ink">{trimmed ? `No matches for “${trimmed}”` : "Start typing to search"}</p>
-            <p className="mt-1 text-[13px] text-muted">Try a campaign or playbook name, a creator, an @handle, or a page like Billing.</p>
+            <p className="mt-1 text-[13px] text-muted">Try a campaign or playbook name, a creator, an @handle, or a page like Members.</p>
           </div>
         ) : null}
         {!results && state.status === "loading" ? <p className="px-3 py-8 text-center text-[13px] text-muted">Searching…</p> : null}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Menu as MenuIcon, Search } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { MessagesDock, type MessagesDockProps } from "./messages-dock";
@@ -8,6 +8,7 @@ import { SearchDialog } from "./search-dialog";
 import { setSidebarCollapsedAction } from "./shell-actions";
 import { Sidebar, type ResourceLinks, type WorkspaceIdentity } from "./sidebar";
 import { DESKTOP_QUERY } from "./use-media-query";
+import { useModalDialog } from "./use-modal-dialog";
 
 export interface WorkspaceShellProps {
   org: WorkspaceIdentity;
@@ -107,30 +108,7 @@ export function WorkspaceShell({ org, organizations, user, canViewBilling, versi
 
 /** Modal navigation drawer for small screens (native <dialog>: focus contained, Escape closes, focus returns to the menu button). */
 function NavigationDrawer({ open, onClose, children }: { open: boolean; onClose: () => void; children: ReactNode }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  const returnFocus = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    if (open && !dialog.open) {
-      returnFocus.current = document.activeElement as HTMLElement | null;
-      dialog.showModal();
-    } else if (!open && dialog.open) {
-      dialog.close();
-    }
-  }, [open]);
-
-  useEffect(() => {
-    const dialog = ref.current;
-    if (!dialog) return;
-    const handleClose = () => {
-      returnFocus.current?.focus?.();
-      onClose();
-    };
-    dialog.addEventListener("close", handleClose);
-    return () => dialog.removeEventListener("close", handleClose);
-  }, [onClose]);
+  const { ref, onBackdropClick } = useModalDialog(open, onClose);
 
   // A drawer left open while the window grows past the breakpoint is closed.
   useEffect(() => {
@@ -141,17 +119,10 @@ function NavigationDrawer({ open, onClose, children }: { open: boolean; onClose:
     };
     mql.addEventListener("change", onChange);
     return () => mql.removeEventListener("change", onChange);
-  }, [open]);
+  }, [open, ref]);
 
   return (
-    <dialog
-      ref={ref}
-      aria-label="Navigation"
-      className="m-0 h-dvh max-h-dvh w-[min(300px,88vw)] max-w-none border-r border-line bg-canvas p-0 md:hidden"
-      onClick={(event) => {
-        if (event.target === ref.current) ref.current?.close();
-      }}
-    >
+    <dialog ref={ref} aria-label="Navigation" className="m-0 h-dvh max-h-dvh w-[min(300px,88vw)] max-w-none border-r border-line bg-canvas p-0 md:hidden" onClick={onBackdropClick}>
       {open ? children : null}
     </dialog>
   );

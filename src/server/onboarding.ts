@@ -38,7 +38,7 @@ import { emailOutbox, memberships, onboardingDrafts, onboardingOrgClaims, organi
 import type { EmailDeliveryStatus } from "./email";
 import { forecastReach, type Forecast } from "./forecast";
 import { createOrganization, getOrganizationById } from "./organizations";
-import { createPlaybookDraft } from "./playbooks-core";
+import { createPlaybookDraft, getPlaybook } from "./playbooks-core";
 
 /**
  * Platform brand onboarding (server side). The draft lives in
@@ -147,12 +147,13 @@ export async function loadOnboardingView(userId: string, opts: { startNew: boole
     const forecast = await forecastFor(answers.dailyBudgetCents ?? DEFAULT_DAILY_BUDGET_CENTS, answers.format);
     return { kind: "wizard", startNew: false, step, answers, org, payment, forecast };
   }
-  if (!opts.startNew) {
-    if (draft?.row.completedAt) return { kind: "redirect", to: "/home" };
-    if ((await listUserOrganizations(userId)).length > 0) return { kind: "redirect", to: "/home" };
-  }
+  // Members of a workspace go home. A completed draft whose workspace the user no
+  // longer belongs to starts over (redirecting would loop: /home sends users
+  // without a workspace back here).
+  if (!opts.startNew && (await listUserOrganizations(userId)).length > 0) return { kind: "redirect", to: "/home" };
   const forecast = await forecastFor(DEFAULT_DAILY_BUDGET_CENTS, undefined);
-  return { kind: "wizard", startNew: opts.startNew, step: "role", answers: {}, org: null, payment: null, forecast };
+  const startNew = opts.startNew || Boolean(draft?.row.completedAt);
+  return { kind: "wizard", startNew, step: "role", answers: {}, org: null, payment: null, forecast };
 }
 
 export interface VerificationDelivery {
@@ -463,12 +464,16 @@ async function createStarterContent(ctx: OrgContext, userId: string, data: Draft
     await persistResult({ campaignId });
   }
 
-  const playbook = await createPlaybookDraft(ctx, { campaignId, templateId: answers.templateId ?? null });
+  const existingPlaybook = data.result.playbookId ? await getPlaybook(ctx.org.id, data.result.playbookId) : null;
+  const playbook =
+    existingPlaybook && existingPlaybook.campaignId === campaignId
+      ? existingPlaybook
+      : await createPlaybookDraft(ctx, { campaignId, templateId: answers.templateId ?? null });
+  await persistResult({ campaignId, playbookId: playbook.id });
   await db
     .update(organizations)
     .set({ billingThresholdCents: answers.billingThresholdCents as number, updatedAt: new Date(), version: sql`${organizations.version} + 1` })
     .where(eq(organizations.id, ctx.org.id));
-  await persistResult({ campaignId, playbookId: playbook.id });
   await recordAudit({
     orgId: ctx.org.id,
     actorUserId: userId,

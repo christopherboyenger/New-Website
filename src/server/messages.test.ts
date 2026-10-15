@@ -105,6 +105,21 @@ describe("team messages", () => {
     expect(unreadB).toEqual({ ok: true, data: { unread: 0 }, message: undefined });
   });
 
+  it("keeps a user who belongs to two workspaces inside the workspace named by the slug", async () => {
+    const { org: a, owner } = await makeOrg();
+    const { org: b } = await makeOrg();
+    await addMember(b.id, "member", owner);
+    const convA = await openAs(owner.id, a.slug);
+    const convB = await openAs(owner.id, b.slug);
+    expect(convA.conversationId).not.toBe(convB.conversationId);
+    await sendTeamMessageAction(b.slug, { conversationId: convB.conversationId, body: "Only for B" });
+
+    expect(await listTeamMessagesAction(a.slug, { conversationId: convB.conversationId })).toMatchObject({ ok: false, code: "not_found" });
+    expect(await sendTeamMessageAction(a.slug, { conversationId: convB.conversationId, body: "cross-post" })).toMatchObject({ ok: false, code: "not_found" });
+    const listA = await listTeamMessagesAction(a.slug, { conversationId: convA.conversationId });
+    expect(listA.ok && listA.data.messages).toEqual([]);
+  });
+
   it("counts unread messages from others since the last read position, never the user's own", async () => {
     const { org, owner } = await makeOrg();
     const member = await addMember(org.id, "member");

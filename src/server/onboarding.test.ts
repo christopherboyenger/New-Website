@@ -264,6 +264,37 @@ describe("onboarding server commands", () => {
     expect(draft.orgId).toBe(orgs.find((o) => o.name === "Second Brand")!.id);
   });
 
+  it("retries a half-finished completion without creating a second campaign or playbook", async () => {
+    const user = await makeUser();
+    await signInAs(user.id);
+    await saveThrough("billing");
+    const first = await completeOnboarding({ deferPayment: true });
+    expect(first.ok).toBe(true);
+    // Simulate a completion whose records were created but whose completion mark was rolled back.
+    const db = await getDb();
+    await db.update(onboardingDrafts).set({ completedAt: null, deferredPaymentAt: null }).where(eq(onboardingDrafts.userId, user.id));
+
+    const retried = await completeOnboarding({ deferPayment: true });
+    expect(retried.ok && retried.data.redirectTo).toBe(first.ok && first.data.redirectTo);
+    const [org] = await orgsOwnedBy(user.id);
+    expect(await db.select().from(campaigns).where(eq(campaigns.orgId, org.id))).toHaveLength(1);
+    expect(await db.select().from(playbooks).where(eq(playbooks.orgId, org.id))).toHaveLength(1);
+  });
+
+  it("starts over (instead of looping back to /home) when a completed draft's workspace is no longer the user's", async () => {
+    const user = await makeUser();
+    await signInAs(user.id);
+    await saveThrough("billing");
+    await completeOnboarding({ deferPayment: true });
+    const [org] = await orgsOwnedBy(user.id);
+    const db = await getDb();
+    await db.delete(memberships).where(and(eq(memberships.orgId, org.id), eq(memberships.userId, user.id)));
+
+    expect(await loadOnboardingView(user.id, { startNew: false })).toMatchObject({ kind: "wizard", startNew: true, step: "role", answers: {} });
+    expect((await saveOnboardingStep({ step: "role", answers: { role: "other" }, startNew: true })).ok).toBe(true);
+    expect(await loadOnboardingView(user.id, { startNew: false })).toMatchObject({ kind: "wizard", step: "overview", answers: { role: "other" }, org: null });
+  });
+
   it("sends existing workspace members to /home unless they ask for a new workspace", async () => {
     const { owner } = await makeOrg();
     expect(await loadOnboardingView(owner.id, { startNew: false })).toEqual({ kind: "redirect", to: "/home" });

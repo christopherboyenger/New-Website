@@ -61,6 +61,9 @@ export interface SidebarProps {
   onNavigate?: () => void;
 }
 
+/** Hover treatment for rows that are not the current page (the selected fill stays on hover). */
+const rowHover = "hover:bg-hover hover:text-ink";
+
 interface NavItem {
   href: string;
   label: string;
@@ -100,7 +103,7 @@ export function Sidebar(props: SidebarProps) {
 
   const rowHeight = touch ? "min-h-11" : "h-8";
   const subRowHeight = touch ? "min-h-11" : "h-7";
-  const rowClass = cn("flex items-center gap-2 rounded-[10px] px-2 hover:bg-hover hover:text-ink", rail && "w-10 justify-center px-0");
+  const rowClass = cn("flex items-center gap-2 rounded-[10px]", rail ? "w-10 justify-center" : "px-2");
 
   return (
     <div className={cn("flex h-full flex-col bg-canvas py-3 text-sm text-ink-2", rail ? "w-14 items-center px-2" : variant === "drawer" ? "w-full px-3" : "w-[var(--spacing-sidebar)] px-2.5")}>
@@ -141,7 +144,7 @@ export function Sidebar(props: SidebarProps) {
                 aria-expanded={campaignsOpen}
                 aria-controls={campaignsId}
                 onClick={() => setCampaignsOpen((v) => !v)}
-                className={cn(rowClass, rowHeight, "w-full")}
+                className={cn(rowClass, rowHeight, rowHover, "w-full")}
               >
                 <Target className="size-4 shrink-0" aria-hidden="true" />
                 <span className="flex-1 text-left">Campaigns</span>
@@ -178,13 +181,13 @@ export function Sidebar(props: SidebarProps) {
                   setResourcesOpen((v) => !v);
                 }
               }}
-              className={cn(rowClass, rowHeight, !rail && "w-full")}
+              className={cn(rowClass, rowHeight, rowHover, !rail && "w-full")}
             >
               <BookOpen className="size-4 shrink-0" aria-hidden="true" />
               <span className={rail ? "sr-only" : "flex-1 text-left"}>Resources</span>
               {rail ? null : <ChevronDown className={cn("size-3.5 text-muted transition-transform", resourcesOpen && "rotate-180")} aria-hidden="true" />}
             </button>
-            {resourcesOpen && !rail ? <ResourcesList id={resourcesId} resources={resources} rowClass={cn(rowClass, subRowHeight)} /> : null}
+            {resourcesOpen && !rail ? <ResourcesList id={resourcesId} resources={resources} rowClass={cn(rowClass, subRowHeight, rowHover)} /> : null}
           </li>
         </ul>
       </nav>
@@ -206,7 +209,7 @@ function NavRow({ item, rail, hideIcon, className, onNavigate }: { item: NavItem
         aria-current={item.active ? "page" : undefined}
         title={rail ? item.label : undefined}
         onClick={onNavigate}
-        className={cn(className, item.active && "bg-selected font-medium text-ink")}
+        className={cn(className, item.active ? "bg-selected font-medium text-ink" : rowHover)}
       >
         {hideIcon ? null : <Icon className="size-4 shrink-0" aria-hidden="true" />}
         <span className={rail ? "sr-only" : "truncate"}>{item.label}</span>
@@ -278,7 +281,7 @@ function ResourcesList({ id, resources, rowClass }: { id: string; resources: Res
         </li>
       ) : null}
       {!docsUrl && !supportEmail ? (
-        <li className="px-2 py-1.5 text-xs leading-5 text-muted">Documentation isn&apos;t published yet. A workspace owner can help with setup questions.</li>
+        <li className="px-2 py-1.5 text-xs leading-5 text-muted">Documentation isn&apos;t published yet.</li>
       ) : null}
     </ul>
   );
