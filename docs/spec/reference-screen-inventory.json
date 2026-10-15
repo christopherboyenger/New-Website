@@ -1,0 +1,1390 @@
+{
+  "product": "Noise",
+  "inspection_date": "2026-10-14",
+  "timezone": "America/New_York",
+  "dashboard_version": "v22ac4bf",
+  "evidence_classes": [
+    "Live",
+    "Screenshot",
+    "Documented",
+    "Proposed",
+    "Unknown"
+  ],
+  "observed_account_state": {
+    "campaigns": 1,
+    "campaign_status": "Paused",
+    "playbooks": 1,
+    "editor_status": "Draft",
+    "posts": 0,
+    "creators": 0,
+    "ad_account_connected": false,
+    "payment_method_present": false
+  },
+  "screens": [
+    {
+      "id": "M01",
+      "surface": "Website",
+      "name": "Marketing homepage",
+      "status": "Mixed",
+      "route": "/",
+      "summary": "Creator marketplace positioning and an interactive product story.",
+      "fields": [
+        "Header/navigation",
+        "Animated-looking resonance hero",
+        "Product previews",
+        "Five workflow steps",
+        "Global network",
+        "Integrations",
+        "Closing CTAs/footer"
+      ],
+      "actions": [
+        "Pricing and Creators links",
+        "Get started/Talk to Sales carry CTA source",
+        "Existing account Start redirects to Home"
+      ],
+      "unknowns": [
+        "Animation timing",
+        "Products menu contents",
+        "Verified marketing metrics"
+      ],
+      "evidence": [
+        "A01",
+        "L30",
+        "L31"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "M02",
+      "surface": "Website",
+      "name": "Pricing",
+      "status": "Live",
+      "route": "/pricing",
+      "summary": "Public Standard and Unlimited plan comparison.",
+      "fields": [
+        "Standard: no monthly platform fee",
+        "Unlimited: $99/month minimum spend, credited",
+        "Plan feature lists"
+      ],
+      "actions": [
+        "Plan CTAs enter /start with source parameters"
+      ],
+      "unknowns": [
+        "Basic versus Standard mapping",
+        "Upgrade/payment completion"
+      ],
+      "evidence": [
+        "L29",
+        "L13"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "M03",
+      "surface": "Website",
+      "name": "Acquisition step 1",
+      "status": "Unknown",
+      "route": "/start",
+      "summary": "Not visible in supplied captures; this account redirects past it.",
+      "fields": [],
+      "actions": [
+        "Existing account redirects to dashboard"
+      ],
+      "unknowns": [
+        "Fields",
+        "New-account routing",
+        "Authentication and validation"
+      ],
+      "evidence": [
+        "L31"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "M04",
+      "surface": "Website",
+      "name": "Acquisition: brand details",
+      "status": "Screenshot",
+      "route": "/start (modal; exact state URL unknown)",
+      "summary": "Step 2 of a separate three-step marketing funnel.",
+      "fields": [
+        "First/last name",
+        "Phone",
+        "Company name/website",
+        "Four monthly budget bands",
+        "Job level/function",
+        "Optional project notes"
+      ],
+      "actions": [
+        "Continue",
+        "Close"
+      ],
+      "unknowns": [
+        "Dropdown choices",
+        "Required-field rules",
+        "Submission/routing rules"
+      ],
+      "evidence": [
+        "A02"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "M05",
+      "surface": "Website",
+      "name": "Acquisition: choose start",
+      "status": "Screenshot",
+      "route": "/start (modal; exact state URL unknown)",
+      "summary": "Step 3 offers self-service signup or an explanation.",
+      "fields": [
+        "Self-serve sign up card",
+        "Read how Noise works card"
+      ],
+      "actions": [
+        "Back",
+        "Close",
+        "Choose a destination"
+      ],
+      "unknowns": [
+        "Routing logic and destinations"
+      ],
+      "evidence": [
+        "A03"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O01",
+      "surface": "Onboarding",
+      "name": "1 · Role",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "Founder",
+        "Creator",
+        "Operations",
+        "Other",
+        "Two obscured options"
+      ],
+      "actions": [
+        "Select a card",
+        "Next"
+      ],
+      "unknowns": [
+        "Hidden role labels",
+        "Validation"
+      ],
+      "evidence": [
+        "A04"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O02",
+      "surface": "Onboarding",
+      "name": "2 · Overview",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "Tell us about your brand",
+        "Set your budget",
+        "Publish your first playbook"
+      ],
+      "actions": [
+        "Get Started"
+      ],
+      "unknowns": [
+        "Route and persistence"
+      ],
+      "evidence": [
+        "A05",
+        "A06",
+        "A07"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O03",
+      "surface": "Onboarding",
+      "name": "3 · Referral",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "Google Search",
+        "Social Media",
+        "Podcast",
+        "YouTube",
+        "TikTok",
+        "I have a code",
+        "Other"
+      ],
+      "actions": [
+        "Radio-style selection",
+        "Back/Next"
+      ],
+      "unknowns": [
+        "Code/Other conditional fields"
+      ],
+      "evidence": [
+        "A08"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O04",
+      "surface": "Onboarding",
+      "name": "4 · Brand basics",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "Brand Name",
+        "Website or App Store link",
+        "Brand Description"
+      ],
+      "actions": [
+        "Back/Next"
+      ],
+      "unknowns": [
+        "Required rules and errors",
+        "Length limits"
+      ],
+      "evidence": [
+        "B01"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O05",
+      "surface": "Onboarding",
+      "name": "5 · Missing capture",
+      "status": "Unknown",
+      "route": null,
+      "summary": "Position 5 is missing; no field contract was invented.",
+      "fields": [],
+      "actions": [],
+      "unknowns": [
+        "Entire screen and transition"
+      ],
+      "evidence": [],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O06",
+      "surface": "Onboarding",
+      "name": "6 · Budget forecast",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "Daily budget slider",
+        "Monthly projected views",
+        "Estimated creator count"
+      ],
+      "actions": [
+        "Change budget",
+        "Back/Next"
+      ],
+      "unknowns": [
+        "Slider range/step",
+        "Estimator algorithm and assumptions"
+      ],
+      "evidence": [
+        "B02"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O07",
+      "surface": "Onboarding",
+      "name": "7 · Reassurance",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "Forecast summary",
+        "Group illustration"
+      ],
+      "actions": [
+        "Back/Next"
+      ],
+      "unknowns": [
+        "Next-step persistence"
+      ],
+      "evidence": [
+        "B03"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O08",
+      "surface": "Onboarding",
+      "name": "8 · Content format",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "Slideshow",
+        "UGC",
+        "Portrait examples"
+      ],
+      "actions": [
+        "Choose format",
+        "Back/Next"
+      ],
+      "unknowns": [
+        "Full heading",
+        "Compatibility/branching"
+      ],
+      "evidence": [
+        "B04"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O09",
+      "surface": "Onboarding",
+      "name": "9 · Template",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "Greenscreen",
+        "Draft - Hook & demo",
+        "Talking head - Skincare",
+        "Skit - Energy Drinks",
+        "Stitch - Side Hustle"
+      ],
+      "actions": [
+        "Select a card",
+        "Back/Next"
+      ],
+      "unknowns": [
+        "Template IDs",
+        "Filtering after format changes"
+      ],
+      "evidence": [
+        "B05"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O10",
+      "surface": "Onboarding",
+      "name": "10 · Billing threshold",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "$10",
+        "$25",
+        "$50"
+      ],
+      "actions": [
+        "Choose monetary charge threshold",
+        "Back/Next"
+      ],
+      "unknowns": [
+        "Custom thresholds",
+        "Save behavior"
+      ],
+      "evidence": [
+        "B06"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O11",
+      "surface": "Onboarding",
+      "name": "11 · Payment readiness",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "Payment details",
+        "Add payment method",
+        "I'll finish later",
+        "Disabled Finish"
+      ],
+      "actions": [
+        "Add card entry",
+        "Defer",
+        "Back/Finish"
+      ],
+      "unknowns": [
+        "Payment processor",
+        "Completion/defer route",
+        "$5 validation disclosure"
+      ],
+      "evidence": [
+        "B07",
+        "L13"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "O12",
+      "surface": "Onboarding",
+      "name": "Agent connection modal",
+      "status": "Screenshot",
+      "route": null,
+      "summary": "Observed within the shared 11-position platform wizard; ordering is inferred from progress segments.",
+      "fields": [
+        "Claude/ChatGPT/Gemini tabs",
+        "MCP endpoint",
+        "Copy",
+        "Connect guide"
+      ],
+      "actions": [
+        "Expand steps",
+        "Close"
+      ],
+      "unknowns": [
+        "Other tabs and connection outcome"
+      ],
+      "evidence": [
+        "A04",
+        "L16"
+      ],
+      "doc": "onboarding"
+    },
+    {
+      "id": "D01",
+      "surface": "Dashboard",
+      "name": "Home",
+      "status": "Live",
+      "route": "/home/{org}",
+      "summary": "Greeting, rolling view totals and date-filtered organic/ad summaries.",
+      "fields": [
+        "24-hour and 60-minute counters",
+        "Organic views",
+        "Ad impressions",
+        "Active campaigns",
+        "Posts",
+        "UTC date range"
+      ],
+      "actions": [
+        "Open Live",
+        "Drill into Organic/Ads with dates",
+        "View all posts"
+      ],
+      "unknowns": [
+        "Populated cards/charts",
+        "Refresh cadence"
+      ],
+      "evidence": [
+        "L01"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D02",
+      "surface": "Dashboard",
+      "name": "Live",
+      "status": "Live",
+      "route": "/home/{org}/live",
+      "summary": "Views from creators' cities during the last 60 minutes on a globe.",
+      "fields": [
+        "Globe",
+        "24-hour/60-minute totals",
+        "Location coverage empty state"
+      ],
+      "actions": [
+        "Open from Home/Live navigation"
+      ],
+      "unknowns": [
+        "Location source",
+        "Streaming transport",
+        "Populated hotspots"
+      ],
+      "evidence": [
+        "L09"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D03",
+      "surface": "Dashboard",
+      "name": "Organic: campaigns",
+      "status": "Live",
+      "route": "/home/{org}/campaigns?tab=campaigns",
+      "summary": "Budget and performance list with status controls.",
+      "fields": [
+        "Active",
+        "Campaign",
+        "Views/Spend/CPM",
+        "Playbooks/Posts/Creators",
+        "Average views/post",
+        "Budget",
+        "Platforms"
+      ],
+      "actions": [
+        "New Campaign",
+        "Campaign drilldown to Playbooks",
+        "Edit budget",
+        "Sort/paginate"
+      ],
+      "unknowns": [
+        "Edit budget dialog",
+        "Bulk effects",
+        "Count inclusion rules"
+      ],
+      "evidence": [
+        "L03"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D04",
+      "surface": "Dashboard",
+      "name": "Organic: playbooks",
+      "status": "Live",
+      "route": "/home/{org}/campaigns?tab=playbooks",
+      "summary": "Playbook status, type and performance, optionally narrowed by campaign.",
+      "fields": [
+        "Active",
+        "Name",
+        "Platforms/type",
+        "Views/spend/CPM",
+        "Posts/creators/average",
+        "Campaign"
+      ],
+      "actions": [
+        "Create Playbook",
+        "Edit",
+        "Breakdown",
+        "Filter to campaign"
+      ],
+      "unknowns": [
+        "Publication effects",
+        "Breakdown populated state"
+      ],
+      "evidence": [
+        "L04"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D05",
+      "surface": "Dashboard",
+      "name": "Organic: posts",
+      "status": "Live",
+      "route": "/home/{org}/campaigns?tab=posts",
+      "summary": "Metric selectors, comparisons, search and post layout.",
+      "fields": [
+        "Ten selectable metrics",
+        "Campaign/Playbook/Platform filters",
+        "Chart",
+        "Grid/Table",
+        "Created/Active in range",
+        "Date picker"
+      ],
+      "actions": [
+        "Sort/filter",
+        "Compare",
+        "Search",
+        "Date Apply/Cancel"
+      ],
+      "unknowns": [
+        "Populated cards/details",
+        "Review/Move behavior"
+      ],
+      "evidence": [
+        "L02",
+        "L33",
+        "L34",
+        "L35",
+        "L36"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D06",
+      "surface": "Dashboard",
+      "name": "New campaign",
+      "status": "Live",
+      "route": "/home/{org}/campaigns/new",
+      "summary": "Sectioned settings form with estimates and a final creation action.",
+      "fields": [
+        "Details",
+        "Slideshow/UGC",
+        "Daily/Manual budgets",
+        "CPM Cap",
+        "Country/platform/demographics/tier targeting",
+        "Creator/account approvals"
+      ],
+      "actions": [
+        "Change local section",
+        "Create campaign (not submitted)"
+      ],
+      "unknowns": [
+        "Submission/errors",
+        "Manual rates",
+        "Forecast algorithm",
+        "Server entitlement enforcement"
+      ],
+      "evidence": [
+        "L17",
+        "L18",
+        "L19",
+        "L20",
+        "L21",
+        "L22"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D07",
+      "surface": "Dashboard",
+      "name": "Create playbook",
+      "status": "Live",
+      "route": "/home/{org}/campaigns?tab=playbooks (dialog)",
+      "summary": "First asks which campaign owns the playbook.",
+      "fields": [
+        "Campaign chooser",
+        "Cancel",
+        "Continue"
+      ],
+      "actions": [
+        "Continue disabled before selection"
+      ],
+      "unknowns": [
+        "Subsequent creation screens",
+        "Draft creation timing"
+      ],
+      "evidence": [
+        "L23"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D08",
+      "surface": "Dashboard",
+      "name": "UGC playbook editor",
+      "status": "Live",
+      "route": "/home/{org}/playbooks/{id}/edit",
+      "summary": "Scenes and variations with a creator-app preview.",
+      "fields": [
+        "Name/Draft/Publish",
+        "References",
+        "General instructions",
+        "Scene names/instructions",
+        "On-screen text options",
+        "Descriptions/hashtags",
+        "Combination math",
+        "Templates/Noise agent controls"
+      ],
+      "actions": [
+        "Order scene workflow",
+        "Add/remove controls",
+        "Preview",
+        "Close description panel"
+      ],
+      "unknowns": [
+        "Publish/autosave",
+        "Media validation",
+        "Templates pane",
+        "Slideshow current UI"
+      ],
+      "evidence": [
+        "L05",
+        "L06",
+        "L07"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D09",
+      "surface": "Dashboard",
+      "name": "Ads & submissions",
+      "status": "Live",
+      "route": "/home/{org}/ads",
+      "summary": "Paid-ad list and direct creator submissions.",
+      "fields": [
+        "All ads/Submissions",
+        "Date range",
+        "Create ads",
+        "Connection prerequisite"
+      ],
+      "actions": [
+        "Open creation",
+        "Go to Integrations"
+      ],
+      "unknowns": [
+        "Populated ads",
+        "Rights/review/launch statuses"
+      ],
+      "evidence": [
+        "L08",
+        "L37"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D10",
+      "surface": "Dashboard",
+      "name": "Create ads",
+      "status": "Live",
+      "route": "/home/{org}/ads/new?pick=1",
+      "summary": "This account stops at an advertising-connection requirement.",
+      "fields": [
+        "Back to Ads",
+        "Go to Integrations"
+      ],
+      "actions": [
+        "Connection prerequisite"
+      ],
+      "unknowns": [
+        "Connected launch wizard",
+        "Account/ad-set/ad-group selection",
+        "Success/failure"
+      ],
+      "evidence": [
+        "L38"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D11",
+      "surface": "Dashboard",
+      "name": "Creators",
+      "status": "Live",
+      "route": "/home/{org}/creators",
+      "summary": "Performance summaries and searchable creator table.",
+      "fields": [
+        "All/Removed",
+        "Most Views/Viral/Engaging",
+        "Campaign/Level/Platform",
+        "Creator/Level/Posts/Views/Likes/Comments/Accounts/activity"
+      ],
+      "actions": [
+        "Sort",
+        "Search",
+        "Filter",
+        "Pagination"
+      ],
+      "unknowns": [
+        "Creator detail",
+        "Removal/restore",
+        "Populated heatmap"
+      ],
+      "evidence": [
+        "L10"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D12",
+      "surface": "Dashboard",
+      "name": "Integrations",
+      "status": "Mixed",
+      "route": "/home/{org}/integrations",
+      "summary": "Store reporting, ad accounts, AI assistants and developer credentials.",
+      "fields": [
+        "App Store Connect",
+        "Google Play",
+        "Meta Ads",
+        "TikTok Ads",
+        "MCP",
+        "Masked developer key"
+      ],
+      "actions": [
+        "Expand details",
+        "Provider connect entries (not submitted)"
+      ],
+      "unknowns": [
+        "OAuth results",
+        "Credential validation",
+        "Disconnect lifecycle"
+      ],
+      "evidence": [
+        "B08",
+        "B09",
+        "L15",
+        "L16"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D13",
+      "surface": "Dashboard",
+      "name": "Ad settings",
+      "status": "Live",
+      "route": "/home/{org}/ad-settings",
+      "summary": "Defaults used for new ad launches.",
+      "fields": [
+        "Copy templates",
+        "Naming fields/order/Noise ID",
+        "Website/tracking parameters",
+        "Meta/TikTok CTA",
+        "Save"
+      ],
+      "actions": [
+        "Switch local tabs",
+        "Preview naming"
+      ],
+      "unknowns": [
+        "Complete token catalogs",
+        "CTA choices",
+        "Save errors"
+      ],
+      "evidence": [
+        "L11",
+        "L26",
+        "L27",
+        "L28"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D14",
+      "surface": "Dashboard",
+      "name": "Members",
+      "status": "Live",
+      "route": "/home/{org}/members",
+      "summary": "Team membership and pending invites.",
+      "fields": [
+        "Members table/search",
+        "Pending invitations/search",
+        "Owner/Primary Owner labels",
+        "Invite dialog/email rows"
+      ],
+      "actions": [
+        "Invite dialog",
+        "Add another email control",
+        "Pagination"
+      ],
+      "unknowns": [
+        "Visible role picker",
+        "Send outcomes",
+        "Full Member permission matrix"
+      ],
+      "evidence": [
+        "L14",
+        "L32",
+        "Docs: Team & Roles"
+      ],
+      "doc": "api"
+    },
+    {
+      "id": "D15",
+      "surface": "Dashboard",
+      "name": "Branding",
+      "status": "Live",
+      "route": "/home/{org}/branding",
+      "summary": "Creator-facing brand information with a preview.",
+      "fields": [
+        "Name/hashtag",
+        "Three categories",
+        "Logo/cover/color",
+        "1,000-char rich description",
+        "Website/App Store/Android links",
+        "Save",
+        "Leave Team"
+      ],
+      "actions": [
+        "Edit/preview controls",
+        "Link tabs"
+      ],
+      "unknowns": [
+        "Upload errors",
+        "Category catalog",
+        "Save/persistence"
+      ],
+      "evidence": [
+        "L12"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D16",
+      "surface": "Dashboard",
+      "name": "Billing",
+      "status": "Live",
+      "route": "/home/{org}/billing",
+      "summary": "Plan, spend balance, credits, threshold and payment information.",
+      "fields": [
+        "Basic/Upgrade",
+        "Balance/matching credits",
+        "$50 threshold",
+        "Payment/business info",
+        "Activity/Credits",
+        "$5 validation-credit disclosure"
+      ],
+      "actions": [
+        "Payment/upgrade entries not submitted"
+      ],
+      "unknowns": [
+        "Processor",
+        "Promotion rules",
+        "Basic/Standard alias",
+        "Payment failure/retries"
+      ],
+      "evidence": [
+        "L13",
+        "L29",
+        "B07"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D17",
+      "surface": "Dashboard",
+      "name": "Global search",
+      "status": "Live",
+      "route": "/home/{org} (dialog)",
+      "summary": "Command-style search across entities and pages.",
+      "fields": [
+        "Search input",
+        "Campaign/playbook/post/creator/page scope",
+        "Arrow/Enter hints"
+      ],
+      "actions": [
+        "Open via Search/advertised shortcut",
+        "Escape dismiss"
+      ],
+      "unknowns": [
+        "Ranking",
+        "Windows shortcut",
+        "Result layouts"
+      ],
+      "evidence": [
+        "L24"
+      ],
+      "doc": "dashboard"
+    },
+    {
+      "id": "D18",
+      "surface": "Dashboard",
+      "name": "Messaging dock",
+      "status": "Mixed",
+      "route": "/home/{org} (shared overlay)",
+      "summary": "Floating dock with panel content present in DOM; visible state must be modelled explicitly.",
+      "fields": [
+        "Messages",
+        "Pop-out/side-dock",
+        "Noise Agent/Noise Team",
+        "Channel search",
+        "Unlimited creator messaging"
+      ],
+      "actions": [
+        "No message sent"
+      ],
+      "unknowns": [
+        "Hidden vs rendered panel layouts",
+        "Delivery",
+        "Entitlements",
+        "Persistence"
+      ],
+      "evidence": [
+        "L01",
+        "L09",
+        "L10"
+      ],
+      "doc": "dashboard"
+    }
+  ],
+  "live_states": [
+    {
+      "id": "L01",
+      "screen": "Home",
+      "url": "https://platform.getnoise.com/home/testingcreators",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L02",
+      "screen": "Organic - posts",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns?comparisons=none",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L03",
+      "screen": "Organic - campaigns",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns?comparisons=none&tab=campaigns",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L04",
+      "screen": "Organic - playbooks",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns?comparisons=none&tab=playbooks&campaign=20192",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L05",
+      "screen": "UGC playbook editor",
+      "url": "https://platform.getnoise.com/home/testingcreators/playbooks/24964/edit",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L06",
+      "screen": "Playbook variant calculation",
+      "url": "https://platform.getnoise.com/home/testingcreators/playbooks/24964/edit",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L07",
+      "screen": "Playbook descriptions and hashtags",
+      "url": "https://platform.getnoise.com/home/testingcreators/playbooks/24964/edit",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L08",
+      "screen": "Ads",
+      "url": "https://platform.getnoise.com/home/testingcreators/ads",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L09",
+      "screen": "Live",
+      "url": "https://platform.getnoise.com/home/testingcreators/live",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L10",
+      "screen": "Creators",
+      "url": "https://platform.getnoise.com/home/testingcreators/creators",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L11",
+      "screen": "Ad settings",
+      "url": "https://platform.getnoise.com/home/testingcreators/ad-settings",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L12",
+      "screen": "Branding",
+      "url": "https://platform.getnoise.com/home/testingcreators/branding",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L13",
+      "screen": "Billing",
+      "url": "https://platform.getnoise.com/home/testingcreators/billing",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L14",
+      "screen": "Members",
+      "url": "https://platform.getnoise.com/home/testingcreators/members",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L15",
+      "screen": "Integrations",
+      "url": "https://platform.getnoise.com/home/testingcreators/integrations",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L16",
+      "screen": "AI integration details",
+      "url": "https://platform.getnoise.com/home/testingcreators/integrations",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L17",
+      "screen": "New campaign - details",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns/new",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L18",
+      "screen": "New campaign - budget",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns/new",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L19",
+      "screen": "New campaign - targeting",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns/new",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L20",
+      "screen": "New campaign - platform options",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns/new",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L21",
+      "screen": "New campaign - content",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns/new",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L22",
+      "screen": "New campaign - approvals",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns/new",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L23",
+      "screen": "Create playbook - campaign selection",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns?tab=playbooks",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L24",
+      "screen": "Global search",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns?tab=playbooks",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L25",
+      "screen": "Resources navigation",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns?tab=playbooks",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L26",
+      "screen": "Ad settings - naming",
+      "url": "https://platform.getnoise.com/home/testingcreators/ad-settings",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L27",
+      "screen": "Ad settings - tracking",
+      "url": "https://platform.getnoise.com/home/testingcreators/ad-settings",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L28",
+      "screen": "Ad settings - CTA",
+      "url": "https://platform.getnoise.com/home/testingcreators/ad-settings",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L29",
+      "screen": "Public pricing",
+      "url": "https://platform.getnoise.com/pricing",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L30",
+      "screen": "Marketing homepage",
+      "url": "https://platform.getnoise.com/",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L31",
+      "screen": "Existing-account start redirect",
+      "url": "https://platform.getnoise.com/home/testingcreators",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L32",
+      "screen": "Invite members dialog",
+      "url": "https://platform.getnoise.com/home/testingcreators/members",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L33",
+      "screen": "Organic - metric options",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L34",
+      "screen": "Organic - filter options",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L35",
+      "screen": "Organic - created vs active posts",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L36",
+      "screen": "Date range picker",
+      "url": "https://platform.getnoise.com/home/testingcreators/campaigns",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L37",
+      "screen": "Ad submissions",
+      "url": "https://platform.getnoise.com/home/testingcreators/ads?view=submissions",
+      "source": "live Chrome inspection"
+    },
+    {
+      "id": "L38",
+      "screen": "Create ads",
+      "url": "https://platform.getnoise.com/home/testingcreators/ads/new?pick=1",
+      "source": "live Chrome inspection"
+    }
+  ],
+  "reference_images": [
+    {
+      "id": "A01",
+      "title": "Marketing homepage",
+      "file": "evidence/A01.png",
+      "original_filename": "codex-clipboard-7ba1ae33-9656-47f8-94ba-ef6fdf7a7f65.png",
+      "sha256": "69fea2a69d06fca00ef2b7b251b683fe34e10c85607cb65b7129b6f728636e0f",
+      "width": 1888,
+      "height": 900
+    },
+    {
+      "id": "A02",
+      "title": "Acquisition: brand details",
+      "file": "evidence/A02.png",
+      "original_filename": "codex-clipboard-6fee055c-7f1a-4fc0-958d-19036e0f9cdb.png",
+      "sha256": "eb01198795c02e37f4573ed4d5cd1a12d661ad88cc141d8611a6c60bf9c6f76a",
+      "width": 1917,
+      "height": 918
+    },
+    {
+      "id": "A03",
+      "title": "Acquisition: choose start",
+      "file": "evidence/A03.png",
+      "original_filename": "codex-clipboard-49128540-ff5a-476b-945e-b01a8d902a40.png",
+      "sha256": "5d927c30282bc01b18f738433fd9b123b101d5936c080ea3f819806c416d7d21",
+      "width": 1916,
+      "height": 900
+    },
+    {
+      "id": "A04",
+      "title": "Role selection and agent modal",
+      "file": "evidence/A04.png",
+      "original_filename": "codex-clipboard-1cb2cacc-b523-4913-adbf-2ecd678ffcfd.png",
+      "sha256": "0e055b2b0a5cc62be98a7fb910c256cb71d3fc6d5a51fe94f44e1ff9c6116a66",
+      "width": 1917,
+      "height": 926
+    },
+    {
+      "id": "A05",
+      "title": "Onboarding overview",
+      "file": "evidence/A05.png",
+      "original_filename": "codex-clipboard-dfad5c42-f926-4892-92a3-d78fb9a77a16.png",
+      "sha256": "5d8c3b0ec7a78a48ddc9331984b2a2f4ab141c8ea927182a026734d0bb8be0f7",
+      "width": 1896,
+      "height": 918
+    },
+    {
+      "id": "A06",
+      "title": "Overview duplicate",
+      "file": "evidence/A06.png",
+      "original_filename": "codex-clipboard-2cba64b8-577f-4655-bebc-fb1ba9c42715.png",
+      "sha256": "5d8c3b0ec7a78a48ddc9331984b2a2f4ab141c8ea927182a026734d0bb8be0f7",
+      "width": 1896,
+      "height": 918
+    },
+    {
+      "id": "A07",
+      "title": "Overview duplicate",
+      "file": "evidence/A07.png",
+      "original_filename": "codex-clipboard-578373af-95a3-435c-98ee-75becb822e1d.png",
+      "sha256": "5d8c3b0ec7a78a48ddc9331984b2a2f4ab141c8ea927182a026734d0bb8be0f7",
+      "width": 1896,
+      "height": 918
+    },
+    {
+      "id": "A08",
+      "title": "Referral source",
+      "file": "evidence/A08.png",
+      "original_filename": "codex-clipboard-7f58d78f-569c-410d-8130-ce13f664df6b.png",
+      "sha256": "da3901bba152584f528bc2946bb17d42f47be4b6c590ed9878f9b6732d74d49e",
+      "width": 1898,
+      "height": 916
+    },
+    {
+      "id": "B01",
+      "title": "Brand basics",
+      "file": "evidence/B01.png",
+      "original_filename": "codex-clipboard-8dc513a0-5864-4d64-b0b8-b55f9789e32a.png",
+      "sha256": "4cecea17b79c2d24cb2b164d793074729fdc5b013354c2f7ecbf662b954c9acf",
+      "width": 1892,
+      "height": 916
+    },
+    {
+      "id": "B02",
+      "title": "Budget forecast",
+      "file": "evidence/B02.png",
+      "original_filename": "codex-clipboard-c5945bf5-89ff-4113-ab81-5ef0aece7c0b.png",
+      "sha256": "4ba944875ca92ef4e26889daefb5035a36934ea665e079b6bda384558082923e",
+      "width": 1901,
+      "height": 922
+    },
+    {
+      "id": "B03",
+      "title": "Forecast reassurance",
+      "file": "evidence/B03.png",
+      "original_filename": "codex-clipboard-220e56eb-976c-4042-af31-f1482875fcce.png",
+      "sha256": "968b23d882f85a660d73e5134466dded9cb672a777e977e88803eec3cb0cde73",
+      "width": 1898,
+      "height": 927
+    },
+    {
+      "id": "B04",
+      "title": "Content format",
+      "file": "evidence/B04.png",
+      "original_filename": "codex-clipboard-843db1c1-b37e-4078-aba2-50bab3d246a4.png",
+      "sha256": "a899ac26786771491d3b1bf206a13a8592567af8e1b06636e552fa2acdcaccac",
+      "width": 1897,
+      "height": 930
+    },
+    {
+      "id": "B05",
+      "title": "Template selection",
+      "file": "evidence/B05.png",
+      "original_filename": "codex-clipboard-3dfd256b-8cc0-4da7-8142-26bde224fe9a.png",
+      "sha256": "ce76b22c3a6d1cbe479c516d4e3b6acbf01c34afbbe4d5c7f5246fccaddf90e6",
+      "width": 1900,
+      "height": 930
+    },
+    {
+      "id": "B06",
+      "title": "Billing threshold",
+      "file": "evidence/B06.png",
+      "original_filename": "codex-clipboard-34b26af3-f7d4-4b60-a002-9003d1dcffd6.png",
+      "sha256": "b61d3b7e34a541156f821ddd97f89d0812814ce43354c6d9d10ad8d6f6849267",
+      "width": 1902,
+      "height": 930
+    },
+    {
+      "id": "B07",
+      "title": "Payment readiness",
+      "file": "evidence/B07.png",
+      "original_filename": "codex-clipboard-c5475745-9ca0-4135-acb5-616902508bca.png",
+      "sha256": "97206fc946243ad3c99228edab926cc40c50562519f3bfbca36ed185f4ab3568",
+      "width": 1898,
+      "height": 927
+    },
+    {
+      "id": "B08",
+      "title": "Integrations: upper",
+      "file": "evidence/B08.png",
+      "original_filename": "codex-clipboard-aacd84ec-425b-4c75-82e1-6b0b8befb9cb.png",
+      "sha256": "614c7b308aff2d73410f77a25461eb8eb41239ecde162a536a184d7c80216676",
+      "width": 1878,
+      "height": 801
+    },
+    {
+      "id": "B09",
+      "title": "Integrations: lower",
+      "file": "evidence/B09.png",
+      "original_filename": "codex-clipboard-48581e1f-d4f6-4b42-9b24-5d7518bfea4a.png",
+      "sha256": "598415dc9a645c273a05cb4278da186f6ce661f6fc5dee518d8351a09f2bf0d9",
+      "width": 1892,
+      "height": 920
+    }
+  ],
+  "primary_sources": [
+    "https://platform.getnoise.com/",
+    "https://platform.getnoise.com/pricing",
+    "https://platform.getnoise.com/docs/campaigns",
+    "https://platform.getnoise.com/docs/reporting-api",
+    "https://platform.getnoise.com/docs/team-and-roles",
+    "https://platform.getnoise.com/docs/guides/make-a-slideshow-playbook"
+  ],
+  "limitations": [
+    "No underlying source/database recovered",
+    "No writes or external financial/account changes submitted",
+    "Missing acquisition step 1 and platform step 5",
+    "Connected ads/payment flows absent",
+    "Populated dashboards and mobile layouts unobserved"
+  ]
+}

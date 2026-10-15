@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Three deliberate surface treatments (reference-build-specification.md
+ * "Workspace shell and visual measurements"):
+ *   - marketing: black canvas, white type, red-orange accent
+ *   - onboarding: white canvas, navy text, slate helpers, orange intro action
+ *   - dashboard: warm stone neutrals, white cards, thin borders, 10–12px radii
+ * Measured dashboard values: text #1c1917, sidebar text #44403c, muted #78716c,
+ * selected fill #edebe9, sidebar 256px, nav rows 32px, sub rows 28px.
+ */
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Inter Fallback", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Brand accent (red-orange) */
+  --color-accent: #ff3b1d;
+  --color-accent-hover: #e8300f;
+  --color-accent-soft: #fff1ee;
+  --color-accent-ink: #c2260b;
+
+  /* Dashboard (warm stone) */
+  --color-ink: #1c1917;
+  --color-ink-2: #44403c;
+  --color-muted: #78716c;
+  --color-subtle: #a8a29e;
+  --color-canvas: #f7f6f5;
+  --color-surface: #ffffff;
+  --color-selected: #edebe9;
+  --color-hover: #f2f0ee;
+  --color-line: #e7e5e4;
+  --color-line-strong: #d6d3d1;
+
+  /* Onboarding (navy / slate) */
+  --color-navy: #0b1120;
+  --color-navy-2: #1e293b;
+  --color-slate-help: #64748b;
+  --color-slate-line: #dbe2ea;
+  --color-slate-fill: #f8fafc;
+
+  /* Status */
+  --color-success: #15803d;
+  --color-success-soft: #f0fdf4;
+  --color-success-line: #86efac;
+  --color-warning: #a16207;
+  --color-warning-soft: #fefce8;
+  --color-warning-line: #fde68a;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-danger-line: #fecaca;
+  --color-info: #1d4ed8;
+  --color-info-soft: #eff6ff;
+  --color-info-line: #bfdbfe;
+
+  --radius-input: 8px;
+  --radius-row: 10px;
+  --radius-card: 12px;
+
+  --spacing-sidebar: 256px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background: var(--color-surface);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  /* Native dialogs: center and dim. */
+  dialog::backdrop {
+    background: rgb(12 10 9 / 0.45);
+  }
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
