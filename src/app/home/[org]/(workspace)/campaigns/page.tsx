@@ -6,7 +6,7 @@ import { hasPermission, loadOrgContext, requireOrgPage } from "@/server/authz";
 import { countListedPosts, listCampaignChooser, loadOrganicCounts, resolveFilterLabels } from "@/server/organic";
 import { DateRangePicker } from "@/components/date-range/date-range-picker";
 import { Button, ButtonLink } from "@/components/ui/button";
-import { PageContainer, PageHeader } from "@/components/ui/layout";
+import { PageContainer } from "@/components/ui/layout";
 import { CreatePlaybookDialog } from "@/components/reporting/create-playbook-dialog";
 import { CampaignsSection, PlaybooksSection, PostsSection, type SectionContext } from "@/components/reporting/organic-sections";
 import { OrganicTabs } from "@/components/reporting/organic-tabs";
@@ -48,11 +48,10 @@ export default async function OrganicPage({ params, searchParams }: { params: Pr
 
   return (
     <PageContainer className="pt-8 sm:pt-10">
-      <PageHeader
-        title="Organic"
-        className="mb-4"
-        actions={
-          <>
+      {/* Local header (not PageHeader): its actions row must wrap on phones so nothing overflows at 390px. */}
+      <header className="mb-4 flex flex-wrap items-start justify-between gap-4">
+        <h1 className="text-xl font-semibold leading-7 text-ink">Organic</h1>
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
             <DateRangePicker value={state.range} />
             {state.tab === "campaigns" ? (
               canManage ? (
@@ -61,23 +60,18 @@ export default async function OrganicPage({ params, searchParams }: { params: Pr
                   New Campaign
                 </ButtonLink>
               ) : (
-                <span className="flex items-center gap-2">
-                  <Button size="sm" disabled aria-describedby="new-campaign-reason">
-                    <Plus className="size-3.5" aria-hidden="true" />
-                    New Campaign
-                  </Button>
-                  <span id="new-campaign-reason" className="max-w-[180px] text-xs leading-4 text-muted">
-                    Only workspace owners can create campaigns.
-                  </span>
-                </span>
+                <DisabledAction label="New Campaign" reasonId="new-campaign-reason" reason="Only workspace owners can create campaigns." />
               )
             ) : null}
-            {state.tab === "playbooks" && chooser ? (
-              <CreatePlaybookDialog slug={ctx.org.slug} campaigns={chooser} initialCampaignId={campaignFilter} newCampaignHref={canManage ? newCampaignHref : null} />
+            {state.tab === "playbooks" ? (
+              chooser ? (
+                <CreatePlaybookDialog slug={ctx.org.slug} campaigns={chooser} initialCampaignId={campaignFilter} newCampaignHref={canManage ? newCampaignHref : null} />
+              ) : (
+                <DisabledAction label="Create Playbook" reasonId="create-playbook-reason" reason="Your role can't create playbooks." />
+              )
             ) : null}
-          </>
-        }
-      />
+        </div>
+      </header>
       <OrganicTabs basePath={basePath} state={state} counts={{ ...counts, posts }} campaignFilter={labels.campaign} />
       <Suspense key={serializeOrganicState(state).toString()} fallback={<OrganicSectionSkeleton tab={state.tab} />}>
         {state.tab === "campaigns" ? (
@@ -89,5 +83,20 @@ export default async function OrganicPage({ params, searchParams }: { params: Pr
         )}
       </Suspense>
     </PageContainer>
+  );
+}
+
+/** A create action the viewer's role doesn't allow: shown disabled with the reason next to it. */
+function DisabledAction({ label, reason, reasonId }: { label: string; reason: string; reasonId: string }) {
+  return (
+    <span className="flex items-center gap-2">
+      <Button size="sm" disabled aria-describedby={reasonId}>
+        <Plus className="size-3.5" aria-hidden="true" />
+        {label}
+      </Button>
+      <span id={reasonId} className="max-w-[180px] text-xs leading-4 text-muted">
+        {reason}
+      </span>
+    </span>
   );
 }

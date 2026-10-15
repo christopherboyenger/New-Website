@@ -68,6 +68,7 @@ export function PlaybookActiveControl({
         open={open}
         onClose={close}
         size="sm"
+        className="whitespace-normal"
         title={target ? `Turn on ${playbook.name}?` : `Turn off ${playbook.name}?`}
         footer={
           <>

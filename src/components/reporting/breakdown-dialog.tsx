@@ -18,7 +18,8 @@ export interface BreakdownTarget {
   label: string;
 }
 
-type LoadState = { status: "loading" } | { status: "error"; message: string } | { status: "ready"; data: Breakdown };
+type LoadResult = { status: "error"; message: string } | { status: "ready"; data: Breakdown };
+type LoadState = { status: "loading" } | LoadResult;
 
 /**
  * Daily breakdown (views, spend, weighted CPM, posts, creators per UTC day)
@@ -27,21 +28,22 @@ type LoadState = { status: "loading" } | { status: "error"; message: string } | 
  * totals (weighted CPM, deduplicated posts/creators), not column sums.
  */
 export function BreakdownDialog({ slug, range, target, onClose }: { slug: string; range: DateRange; target: BreakdownTarget | null; onClose: () => void }) {
-  const [state, setState] = useState<LoadState>({ status: "loading" });
   const [attempt, setAttempt] = useState(0);
   const key = target ? `${target.kind}:${target.ids.join(",")}:${range.from}:${range.to}:${attempt}` : null;
+  // A result belongs to the request that produced it; any other request shows as loading.
+  const [loaded, setLoaded] = useState<{ key: string; result: LoadResult } | null>(null);
+  const state: LoadState = key !== null && loaded?.key === key ? loaded.result : { status: "loading" };
 
   useEffect(() => {
     if (!target || !key) return;
     let cancelled = false;
-    setState({ status: "loading" });
     loadBreakdownAction(slug, { kind: target.kind, ids: target.ids, from: range.from, to: range.to }).then(
       (result) => {
         if (cancelled) return;
-        setState(result.ok ? { status: "ready", data: result.data } : { status: "error", message: result.error });
+        setLoaded({ key, result: result.ok ? { status: "ready", data: result.data } : { status: "error", message: result.error } });
       },
       () => {
-        if (!cancelled) setState({ status: "error", message: "The breakdown couldn't be loaded. Check your connection and try again." });
+        if (!cancelled) setLoaded({ key, result: { status: "error", message: "The breakdown couldn't be loaded. Check your connection and try again." } });
       },
     );
     return () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addMonths, addMonthsToDay, isSelectable, monthWeeks, moveFocus, rangeFrom, windowFor } from "./calendar";
+import { addMonths, addMonthsToDay, dayLabel, isSelectable, monthLabel, monthWeeks, moveFocus, rangeFrom, selectedDaysLabel, windowFor } from "./calendar";
 
 describe("date range calendar math", () => {
   it("lays out a month in Sunday-first weeks with blanks outside the month", () => {
@@ -37,6 +37,13 @@ describe("date range calendar math", () => {
     expect(isSelectable("2026-10-14", "2026-10-14", null)).toBe(true);
     expect(isSelectable("2025-10-14", "2026-10-14", "2026-10-14")).toBe(true);
     expect(isSelectable("2025-10-13", "2026-10-14", "2026-10-14")).toBe(false);
+  });
+
+  it("labels months, days and the selection length in UTC", () => {
+    expect(monthLabel("2026-09")).toBe("September 2026");
+    expect(dayLabel("2026-10-14")).toBe("Wednesday, October 14, 2026");
+    expect(selectedDaysLabel({ from: "2026-09-15", to: "2026-10-14" })).toBe("30 days selected");
+    expect(selectedDaysLabel({ from: "2026-10-14", to: "2026-10-14" })).toBe("1 day selected");
   });
 
   it("keeps the focused day inside the visible months, moving as little as possible", () => {

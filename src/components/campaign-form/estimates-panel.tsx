@@ -12,6 +12,7 @@ import type { ReachEstimate } from "./use-reach-estimate";
  * while no model is configured that is "Reach estimate unavailable" with the
  * reason — never placeholder numbers or meters (DEC-008). The budget block
  * only restates the user's own input (daily target and its 7-day average).
+ * The footer (Create campaign) is desktop-only; phones use a sticky bar.
  */
 export function EstimatesPanel({ estimate, dailyBudgetCents, footer }: { estimate: ReachEstimate; dailyBudgetCents: number | null; footer?: ReactNode }) {
   const pending = estimate.status === "pending";
@@ -34,7 +35,7 @@ export function EstimatesPanel({ estimate, dailyBudgetCents, footer }: { estimat
           </dl>
         </div>
       </div>
-      {footer ? <div className="border-t border-line px-5 py-4">{footer}</div> : null}
+      {footer ? <div className="border-t border-line px-5 py-4 max-md:hidden">{footer}</div> : null}
     </section>
   );
 }

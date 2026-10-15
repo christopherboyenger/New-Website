@@ -61,6 +61,7 @@ export function CampaignStatusControl({
         open={open}
         onClose={close}
         size="sm"
+        className="whitespace-normal"
         title={active ? `Pause ${campaign.name}?` : `Activate ${campaign.name}?`}
         footer={
           <>

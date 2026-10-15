@@ -74,7 +74,7 @@ export function CampaignsTable({
         </div>
       </div>
       <TableScroll label="Campaigns">
-        <Table className="min-w-[1080px]">
+        <Table className="min-w-[1040px]">
           <THead>
             <tr>
               <TH className="w-10">
@@ -122,7 +122,7 @@ export function CampaignsTable({
                 <TD>
                   <BudgetControl slug={slug} campaign={row} canEdit={canManage} />
                 </TD>
-                <TD className="text-[13px] text-ink-2">{formatPlatforms(row.platforms)}</TD>
+                <TD className="min-w-[120px] max-w-[180px] whitespace-normal text-[13px] text-ink-2">{formatPlatforms(row.platforms)}</TD>
               </TR>
             ))}
           </tbody>

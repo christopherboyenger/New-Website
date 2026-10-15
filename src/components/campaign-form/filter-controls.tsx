@@ -110,12 +110,11 @@ export function FilterPopover({ triggerId, triggerLabel, triggerAriaLabel, dialo
   const open = openState && !disabled;
   const wrapperRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
 
   const closeAndReturnFocus = () => {
     setOpen(false);
-    triggerRef.current?.focus();
+    document.getElementById(triggerId)?.focus();
   };
 
   useEffect(() => {
@@ -137,7 +136,6 @@ export function FilterPopover({ triggerId, triggerLabel, triggerAriaLabel, dialo
       }}
     >
       <Button
-        ref={triggerRef}
         id={triggerId}
         variant="secondary"
         size="sm"
@@ -234,11 +232,7 @@ export function OptionPicker({ label, options, selected, multiple, onChange, onD
     }
   };
 
-  const focusProps = {
-    "aria-controls": listId,
-    "aria-activedescendant": activeDomId,
-    onKeyDown,
-  };
+  const focusProps = { "aria-activedescendant": activeDomId, onKeyDown };
 
   return (
     <div className="flex flex-col gap-2">
@@ -246,6 +240,7 @@ export function OptionPicker({ label, options, selected, multiple, onChange, onD
         <input
           type="text"
           role="combobox"
+          aria-controls={listId}
           aria-expanded="true"
           aria-autocomplete="list"
           aria-label={`Search ${label}`}

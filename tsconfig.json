@@ -35,7 +35,11 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    ".next-campaign-form/types/**/*.ts",
+    ".next-campaign-form/dev/types/**/*.ts",
+    ".next-playbooks/types/**/*.ts",
+    ".next-playbooks/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

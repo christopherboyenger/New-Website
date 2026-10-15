@@ -270,7 +270,7 @@ export function CampaignForm({ slug, orgName, backHref, entitlements, gate, reco
             estimate={estimate}
             dailyBudgetCents={validDaily}
             footer={
-              <div className="hidden flex-col gap-2 md:flex">
+              <div className="flex flex-col gap-2">
                 {createButton("w-full")}
                 <CreateNote />
               </div>

@@ -82,6 +82,35 @@ export function moveFocus(day: string, key: string, shiftKey: boolean): string |
   }
 }
 
+const monthFormat = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+const dayFormat = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+
+/** "September 2026" for "2026-09". */
+export function monthLabel(month: string): string {
+  return monthFormat.format(dayToDate(`${month}-01`));
+}
+
+/** "Wednesday, October 14, 2026" — the accessible name of a calendar day. */
+export function dayLabel(day: string): string {
+  return dayFormat.format(dayToDate(day));
+}
+
+export const weekdays = [
+  { short: "Su", long: "Sunday" },
+  { short: "Mo", long: "Monday" },
+  { short: "Tu", long: "Tuesday" },
+  { short: "We", long: "Wednesday" },
+  { short: "Th", long: "Thursday" },
+  { short: "Fr", long: "Friday" },
+  { short: "Sa", long: "Saturday" },
+] as const;
+
+/** "1 day selected" / "30 days selected". */
+export function selectedDaysLabel(range: DateRange): string {
+  const n = rangeLengthDays(range);
+  return `${n} ${n === 1 ? "day" : "days"} selected`;
+}
+
 /** First visible month so that `day` is inside a window of `count` months starting there (moving as little as possible). */
 export function windowFor(firstMonth: string, count: number, day: string): string {
   const month = monthOf(day);

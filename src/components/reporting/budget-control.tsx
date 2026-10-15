@@ -105,6 +105,7 @@ export function BudgetControl({
         open={open}
         onClose={close}
         size="sm"
+        className="whitespace-normal"
         title="Edit budget"
         description={campaign.name}
         footer={

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { createTestDb } from "../../tests/support/db";
-import { addDailyMetric, addMember, makeCampaign, makeCreator, makeOrg, makePlaybook, makePost } from "../../tests/support/factories";
+import { addDailyMetric, addMember, addObservation, makeCampaign, makeCreator, makeOrg, makePlaybook, makePost } from "../../tests/support/factories";
 import { resetRequestContext, signInAs } from "../../tests/support/request-context";
 import { getDb } from "./db/client";
 import { playbooks } from "./db/schema";
@@ -14,6 +14,7 @@ import {
   loadBreakdownForSlug,
   loadDailyChart,
   loadFilterChoices,
+  loadMetricsFreshness,
   loadOrganicCounts,
   loadPostMetricSummary,
   loadPostsPage,
@@ -185,6 +186,21 @@ describe("organic posts tab", () => {
     const summary = await loadPostMetricSummary(org.id, { ...noFilters, range, mode: "created" });
     expect(summary.status).toBe("awaiting_metrics");
     expect(summary.lifetime).toMatchObject({ postCount: 1, likes: null, engagement: null });
+  });
+
+  it("reports when metrics were last observed and flags them stale after a day, per workspace", async () => {
+    const { org } = await makeOrg();
+    const other = await makeOrg();
+    const now = new Date("2026-10-15T12:00:00Z");
+    expect(await loadMetricsFreshness(org.id, now)).toEqual({ lastReportedAt: null, stale: false });
+
+    const campaign = await makeCampaign(org.id);
+    const post = await makePost(org.id, (await makeCreator()).id, { campaignId: campaign.id, metricsObservedAt: new Date("2026-10-15T08:00:00Z") });
+    await addObservation(post, new Date("2026-10-15T10:30:00Z"), 1_200);
+    expect(await loadMetricsFreshness(org.id, now)).toEqual({ lastReportedAt: "2026-10-15T10:30:00.000Z", stale: false });
+    expect(await loadMetricsFreshness(org.id, new Date("2026-10-16T11:00:00Z"))).toMatchObject({ stale: true });
+    // Another workspace's observations never count.
+    expect(await loadMetricsFreshness(other.org.id, now)).toEqual({ lastReportedAt: null, stale: false });
   });
 
   it("lists all review statuses by default, filters by status and distinguishes an empty workspace", async () => {

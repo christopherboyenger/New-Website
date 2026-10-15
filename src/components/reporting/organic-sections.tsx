@@ -21,15 +21,18 @@ import {
   listPlaybookRows,
   loadDailyChart,
   loadFilterChoices,
+  loadMetricsFreshness,
   loadPostMetricSummary,
   loadPostsPage,
   resolveFilterLabels,
   workspaceHasPosts,
+  type MetricsFreshness,
   type Paged,
 } from "@/server/organic";
 import { CampaignsTable } from "./campaigns-table";
 import { campaignSortLabels, playbookSortLabels, postSortLabels, type SortLink } from "./columns";
 import { DailyChart, type ChartState } from "./daily-chart";
+import { LocalDateTime } from "./local-time";
 import { MetricCards } from "./metric-cards";
 import { PlaybooksTable } from "./playbooks-table";
 import { PostGrid, PostTable } from "./post-results";
@@ -80,11 +83,35 @@ function PastLastPage({ ctx, noun }: { ctx: SectionContext; noun: string }) {
   );
 }
 
-function MetricsPendingNotice() {
+/**
+ * Report status above each tab: metrics not reported yet (values show "—",
+ * never 0), possibly out of date (last values kept, with the time), or the
+ * time of the last report; plus the viewer's permission note.
+ */
+function SectionNotices({ awaiting, freshness, permissionNote }: { awaiting: boolean; freshness: MetricsFreshness; permissionNote?: string | null }) {
+  const lastReported = freshness.lastReportedAt;
   return (
-    <InlineAlert tone="info" title="Metrics aren't available yet" className="mb-4">
-      You have approved posts, but no metrics source has reported views for them yet. Views, spend and CPM show “—” until reporting starts — they aren&apos;t zero.
-    </InlineAlert>
+    <>
+      {awaiting ? (
+        <InlineAlert tone="info" title="Metrics aren't available yet" className="mb-4">
+          You have approved posts, but no metrics source has reported views for them yet. Views, spend and CPM show “—” until reporting starts — they aren&apos;t zero.
+        </InlineAlert>
+      ) : freshness.stale && lastReported ? (
+        <InlineAlert tone="warning" title="Metrics may be out of date" className="mb-4">
+          The last metrics report arrived <LocalDateTime iso={lastReported} />. The numbers below are the last reported values, so recent views and spend may be missing.
+        </InlineAlert>
+      ) : null}
+      {permissionNote || (lastReported && !freshness.stale) ? (
+        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-[13px] text-muted">
+          <p>{permissionNote}</p>
+          {lastReported && !freshness.stale ? (
+            <p>
+              Metrics last reported <LocalDateTime iso={lastReported} />
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </>
   );
 }
 
@@ -94,9 +121,10 @@ function MetricsPendingNotice() {
 
 export async function CampaignsSection({ ctx, canManage }: { ctx: SectionContext; canManage: boolean }) {
   const sort = campaignSorts.find((s) => s === ctx.state.sort) ?? "views";
-  const [page, awaiting] = await Promise.all([
+  const [page, awaiting, freshness] = await Promise.all([
     listCampaignRows(ctx.orgId, { range: ctx.state.range, sort, order: ctx.state.order, page: ctx.state.page }),
     awaitingFirstMetrics(ctx.orgId),
+    loadMetricsFreshness(ctx.orgId),
   ]);
 
   if (page.total === 0) {
@@ -124,8 +152,11 @@ export async function CampaignsSection({ ctx, canManage }: { ctx: SectionContext
 
   return (
     <>
-      {awaiting ? <MetricsPendingNotice /> : null}
-      {!canManage ? <p className="mb-3 text-[13px] text-muted">Only workspace owners can activate, pause or change budgets. You can view every campaign.</p> : null}
+      <SectionNotices
+        awaiting={awaiting}
+        freshness={freshness}
+        permissionNote={canManage ? null : "Only workspace owners can activate, pause or change budgets. You can view every campaign."}
+      />
       <Card className="overflow-hidden">
         {page.rows.length ? (
           <CampaignsTable
@@ -155,10 +186,11 @@ export async function CampaignsSection({ ctx, canManage }: { ctx: SectionContext
 export async function PlaybooksSection({ ctx, canPublish, canEdit }: { ctx: SectionContext; canPublish: boolean; canEdit: boolean }) {
   const sort = playbookSorts.find((s) => s === ctx.state.sort) ?? "views";
   const campaignFilter = ctx.state.campaign && ctx.state.campaign !== "0" ? ctx.state.campaign : null;
-  const [labels, page, awaiting] = await Promise.all([
+  const [labels, page, awaiting, freshness] = await Promise.all([
     resolveFilterLabels(ctx.orgId, { campaign: campaignFilter, playbook: null }),
     listPlaybookRows(ctx.orgId, { range: ctx.state.range, campaignId: campaignFilter, sort, order: ctx.state.order, page: ctx.state.page }),
     awaitingFirstMetrics(ctx.orgId),
+    loadMetricsFreshness(ctx.orgId),
   ]);
   const clearHref = organicHref(ctx.basePath, ctx.state, { campaign: null });
 
@@ -202,8 +234,7 @@ export async function PlaybooksSection({ ctx, canPublish, canEdit }: { ctx: Sect
 
   return (
     <>
-      {awaiting ? <MetricsPendingNotice /> : null}
-      {!canPublish ? <p className="mb-3 text-[13px] text-muted">Only workspace owners can turn published playbooks on or off.</p> : null}
+      <SectionNotices awaiting={awaiting} freshness={freshness} permissionNote={canPublish ? null : "Only workspace owners can turn published playbooks on or off."} />
       <Card className="overflow-hidden">
         {page.rows.length ? (
           <PlaybooksTable
@@ -234,12 +265,13 @@ export async function PostsSection({ ctx, canManage }: { ctx: SectionContext; ca
   const s = ctx.state;
   const filters = { campaign: s.campaign, playbook: s.playbook, platform: s.platform };
   const chartMetric = isRangeMetric(s.chart) ? s.chart : null;
-  const [summary, page, hasPosts, choices, labels] = await Promise.all([
+  const [summary, page, hasPosts, choices, labels, freshness] = await Promise.all([
     loadPostMetricSummary(ctx.orgId, { ...filters, range: s.range, mode: s.mode }),
     loadPostsPage(ctx.orgId, { ...filters, range: s.range, mode: s.mode, review: s.review, q: s.q, sort: s.sort, order: s.order, page: s.page }),
     workspaceHasPosts(ctx.orgId),
     loadFilterChoices(ctx.orgId, s.campaign),
     resolveFilterLabels(ctx.orgId, { campaign: s.campaign, playbook: s.playbook }),
+    loadMetricsFreshness(ctx.orgId),
   ]);
   const chart: ChartState =
     chartMetric === null
@@ -251,7 +283,10 @@ export async function PostsSection({ ctx, canManage }: { ctx: SectionContext; ca
   const lastPage = Math.max(1, Math.ceil(page.meta.total / page.meta.page_size));
   return (
     <div className="space-y-4">
-      <PostFilterBar basePath={ctx.basePath} state={s} choices={choices} labels={labels} />
+      <div>
+        <SectionNotices awaiting={summary.status === "awaiting_metrics"} freshness={freshness} />
+        <PostFilterBar basePath={ctx.basePath} state={s} choices={choices} labels={labels} />
+      </div>
       <MetricCards basePath={ctx.basePath} state={s} summary={summary} />
       <Card className="p-4">
         <div className="mb-3">

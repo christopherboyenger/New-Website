@@ -12,7 +12,8 @@ import { campaigns, playbooks } from "./db/schema";
 /** Gives template scenes/slides fresh IDs so drafts never share identifiers. */
 function instantiate(content: PlaybookContent): PlaybookContent {
   const clone = structuredClone(content);
-  if (clone.kind === "ugc") clone.scenes = clone.scenes.map((s) => ({ ...s, id: newId("scn") }));
+  if (clone.kind === "ugc")
+    clone.scenes = clone.scenes.map((s) => ({ ...s, id: newId("scn") }));
   else clone.slides = clone.slides.map((s) => ({ ...s, id: newId("sld") }));
   return clone;
 }
@@ -31,13 +32,17 @@ export async function createPlaybookDraft(
   const [campaign] = await db
     .select()
     .from(campaigns)
-    .where(and(eq(campaigns.orgId, ctx.org.id), eq(campaigns.id, input.campaignId)))
+    .where(
+      and(eq(campaigns.orgId, ctx.org.id), eq(campaigns.id, input.campaignId)),
+    )
     .limit(1);
   if (!campaign) throw new NotFoundError("Campaign not found.");
 
   const template = findTemplate(input.templateId);
   if (template && template.format !== campaign.format) {
-    throw new Error(`Template "${template.name}" is for ${template.format} campaigns; this campaign uses ${campaign.format}.`);
+    throw new Error(
+      `Template "${template.name}" is for ${template.format} campaigns; this campaign uses ${campaign.format}.`,
+    );
   }
   const id = newId("pbk");
   const [row] = await db
@@ -46,23 +51,36 @@ export async function createPlaybookDraft(
       id,
       orgId: ctx.org.id,
       campaignId: campaign.id,
-      name: input.name?.trim() || (template ? template.name : "Untitled playbook"),
+      name:
+        input.name?.trim() || (template ? template.name : "Untitled playbook"),
       format: campaign.format,
       status: "draft",
       active: false,
       templateId: template?.id ?? null,
-      content: template ? instantiate(template.content) : emptyContent(campaign.format),
+      content: template
+        ? instantiate(template.content)
+        : emptyContent(campaign.format),
       descriptions: template ? [...template.descriptions] : [],
       hashtags: template ? [...template.hashtags] : [],
       createdByUserId: ctx.user.id,
     })
     .returning();
-  await recordAudit({ orgId: ctx.org.id, actorUserId: ctx.user.id, action: "playbook.create_draft", targetType: "playbook", targetId: id });
+  await recordAudit({
+    orgId: ctx.org.id,
+    actorUserId: ctx.user.id,
+    action: "playbook.create_draft",
+    targetType: "playbook",
+    targetId: id,
+  });
   return row;
 }
 
 export async function getPlaybook(orgId: string, playbookId: string) {
   const db = await getDb();
-  const [row] = await db.select().from(playbooks).where(and(eq(playbooks.orgId, orgId), eq(playbooks.id, playbookId))).limit(1);
+  const [row] = await db
+    .select()
+    .from(playbooks)
+    .where(and(eq(playbooks.orgId, orgId), eq(playbooks.id, playbookId)))
+    .limit(1);
   return row ?? null;
 }

@@ -9,7 +9,7 @@ import type { CampaignSort, ComparisonDimension, PlaybookSort, PostMode, RangeMe
 import { fail, fromZodError, ok, runAction, type ActionResult } from "./action-result";
 import { NotFoundError, requireOrgAction } from "./authz";
 import { getDb, type Db } from "./db/client";
-import { campaigns, playbooks, postDailyMetrics, posts, reviewStatuses, type PlaybookStatus } from "./db/schema";
+import { campaigns, metricObservations, playbooks, postDailyMetrics, posts, reviewStatuses, type PlaybookStatus } from "./db/schema";
 import { createPlaybookDraft } from "./playbooks-core";
 import { dailyReport, postSorts, queryPosts, type DailyRow, type PostPage, type PostSort } from "./reporting";
 
@@ -486,6 +486,38 @@ export async function awaitingFirstMetrics(orgId: string): Promise<boolean> {
   if (!post) return false;
   const [metric] = await db.select({ postId: postDailyMetrics.postId }).from(postDailyMetrics).where(eq(postDailyMetrics.orgId, orgId)).limit(1);
   return !metric;
+}
+
+/** Hours without a new metrics observation after which reports are flagged as possibly out of date. */
+export const METRICS_STALE_AFTER_HOURS = 24;
+
+export interface MetricsFreshness {
+  /** ISO instant of the latest metrics observation for the workspace; null = never reported. */
+  lastReportedAt: string | null;
+  stale: boolean;
+}
+
+/**
+ * When metrics were last reported for this workspace (latest raw observation
+ * or post counter update). Reports keep showing the last values; a stale flag
+ * adds a notice instead of erasing them.
+ */
+export async function loadMetricsFreshness(orgId: string, now: Date = new Date()): Promise<MetricsFreshness> {
+  const db = await getDb();
+  const [[observation], [post]] = await Promise.all([
+    db
+      .select({ at: sql<string | Date | null>`max(${metricObservations.observedAt})` })
+      .from(metricObservations)
+      .where(eq(metricObservations.orgId, orgId)),
+    db
+      .select({ at: sql<string | Date | null>`max(${posts.metricsObservedAt})` })
+      .from(posts)
+      .where(eq(posts.orgId, orgId)),
+  ]);
+  const times = [observation?.at, post?.at].filter((v): v is string | Date => v !== null && v !== undefined).map((v) => new Date(v).getTime());
+  if (!times.length) return { lastReportedAt: null, stale: false };
+  const latest = Math.max(...times);
+  return { lastReportedAt: new Date(latest).toISOString(), stale: now.getTime() - latest > METRICS_STALE_AFTER_HOURS * 3_600_000 };
 }
 
 /** Whether the workspace has any post at all (any review status), to tell "no posts yet" from "no posts match". */
