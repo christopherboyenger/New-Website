@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
 import { Check, Info, Minus } from "lucide-react";
-import { commercialPolicy, paymentSetupDisclosure } from "@/config/commercial-policy";
+import { commercialPolicy, paymentSetupDisclosure, planSummary } from "@/config/commercial-policy";
 import { features, hasFeature, type Feature } from "@/domain/entitlements";
 import { formatUsd } from "@/lib/money";
 import { startHref } from "@/components/marketing/content";
 import { CtaLink, PageHero, Section, SectionHeading } from "@/components/marketing/primitives";
 import type { PlanId } from "@/server/db/schema/core";
 
+const { basic, unlimited } = commercialPolicy.plans;
+/** "Standard with no monthly platform fee" — names and fee wording follow the commercial policy. */
+const basicLead = `${basic.displayName}${basic.monthlyPriceCents === 0 ? " with no monthly platform fee" : ""}`;
+
 export const metadata: Metadata = {
   title: "Pricing",
-  description: "Plans for running creator campaigns: a Standard plan with no monthly platform fee and an Unlimited plan with advanced controls.",
+  description: `Plans for running creator campaigns: ${basicLead} and ${unlimited.displayName} with advanced controls.`,
   alternates: { canonical: "/pricing" },
 };
 
@@ -37,7 +41,7 @@ export default function PricingPage() {
       <PageHero
         eyebrow="Pricing"
         title="Pay as creators earn."
-        intro="Start on Standard with no monthly platform fee, or choose Unlimited for advanced targeting, approvals and creator messaging."
+        intro={`Start on ${basicLead}, or choose ${unlimited.displayName} for advanced targeting, approvals and creator messaging.`}
       >
         {!commercialPolicy.decided ? (
           <p className="mt-8 inline-flex items-start gap-2 rounded-[10px] border border-white/15 px-3.5 py-2.5 text-sm text-white/75" role="note">
@@ -71,7 +75,7 @@ export default function PricingPage() {
                     </>
                   )}
                 </p>
-                <p className="mt-3 text-sm leading-relaxed text-white/70">{plan.summary}</p>
+                <p className="mt-3 text-sm leading-relaxed text-white/70">{planSummary(planId)}</p>
                 <ul className="mt-6 flex flex-1 flex-col gap-3 border-t border-white/10 pt-6">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex gap-3 text-sm text-white/85">
@@ -96,7 +100,7 @@ export default function PricingPage() {
 
       <Section labelledBy="compare-title">
         <SectionHeading id="compare-title" title="Compare plans" />
-        <div className="mt-10 overflow-x-auto rounded-[14px] border border-white/10" role="region" aria-label="Plan comparison" tabIndex={0}>
+        <div className="relative mt-10 overflow-x-auto rounded-[14px] border border-white/10" role="region" aria-label="Plan comparison" tabIndex={0}>
           <table className="w-full min-w-[520px] text-left text-sm">
             <caption className="sr-only">Capabilities included in each plan</caption>
             <thead>

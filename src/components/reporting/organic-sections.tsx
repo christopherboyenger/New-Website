@@ -133,7 +133,7 @@ export async function CampaignsSection({ ctx, canManage, createdId = null }: { c
   if (page.total === 0) {
     return (
       <Card>
-        <EmptyState
+        <EmptyState headingLevel={2}
           title="No campaigns yet"
           description={
             canManage
@@ -215,7 +215,7 @@ export async function PlaybooksSection({ ctx, canPublish, canEdit }: { ctx: Sect
   if (labels.campaign && !labels.campaign.found) {
     return (
       <Card>
-        <EmptyState
+        <EmptyState headingLevel={2}
           title="Campaign not found"
           description="This campaign doesn't exist in this workspace, or it was deleted."
           action={
@@ -231,7 +231,7 @@ export async function PlaybooksSection({ ctx, canPublish, canEdit }: { ctx: Sect
   if (page.total === 0) {
     return (
       <Card>
-        <EmptyState
+        <EmptyState headingLevel={2}
           title={labels.campaign ? `No playbooks in ${labels.campaign.label} yet` : "No playbooks yet"}
           description={
             canEdit

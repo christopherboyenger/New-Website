@@ -1,16 +1,19 @@
 import "server-only";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
+import { commercialPolicy } from "@/config/commercial-policy";
 import { MIN_DAILY_BUDGET_CENTS } from "@/domain/campaign";
 import { EntitlementError, missingEntitlements } from "@/domain/entitlements";
 import { formatUsd } from "@/lib/money";
 import { ConflictError, fail, fromZodError, ok, runAction, type ActionResult } from "./action-result";
 import { recordAudit } from "./audit";
 import { NotFoundError, requireOrgAction, type CommandContext } from "./authz";
+import { getPaymentReadiness } from "./billing/payment-setup";
 import { getCampaign, MAX_DAILY_BUDGET_CENTS, updateCampaignVersioned } from "./campaigns-core";
 import { getDb } from "./db/client";
 import { campaigns, playbooks } from "./db/schema";
 import { getPlaybook } from "./playbooks-core";
+import { capability } from "./readiness";
 
 /**
  * Campaign status and budget, and playbook distribution — the only writes the
@@ -33,6 +36,47 @@ export class StatusTransitionError extends Error {
     super(message);
     this.name = "StatusTransitionError";
   }
+}
+
+/**
+ * Putting a playbook live needs a provider-confirmed payment method when the
+ * commercial policy says so (the same rule publishing enforces). Thrown by
+ * the switches that make a published playbook visible to creators again.
+ */
+export class PaymentMethodRequiredError extends Error {
+  constructor(
+    message: string,
+    readonly providerConfigured: boolean,
+  ) {
+    super(message);
+    this.name = "PaymentMethodRequiredError";
+  }
+}
+
+async function assertCanGoLive(orgId: string): Promise<void> {
+  if (!commercialPolicy.publishing.requiresPaymentMethod) return;
+  const { status } = await getPaymentReadiness(orgId);
+  if (status === "ready") return;
+  const providerConfigured = capability("payments").configured;
+  throw new PaymentMethodRequiredError(
+    !providerConfigured
+      ? "Putting a playbook live needs a payment method on file, and card payments aren't configured on this deployment yet."
+      : status === "pending"
+        ? "Your payment method is still being confirmed. You can put a playbook live once Billing shows it as ready."
+        : "Add a payment method in Billing before putting a playbook live. This switch doesn't charge anything.",
+    providerConfigured,
+  );
+}
+
+/** True when the campaign has a published playbook switched on, so activating it puts that playbook in front of creators. */
+async function hasDistributedPlaybook(orgId: string, campaignId: string): Promise<boolean> {
+  const db = await getDb();
+  const [row] = await db
+    .select({ id: playbooks.id })
+    .from(playbooks)
+    .where(and(eq(playbooks.orgId, orgId), eq(playbooks.campaignId, campaignId), eq(playbooks.status, "published"), eq(playbooks.active, true)))
+    .limit(1);
+  return Boolean(row);
 }
 
 type Campaign = typeof campaigns.$inferSelect;
@@ -59,6 +103,7 @@ export async function activateCampaign(ctx: CommandContext, input: VersionedCamp
   if (campaign.status === "active") throw new StatusTransitionError("This campaign is already active.");
   const missing = missingEntitlements(ctx.org.planId, campaign);
   if (missing.length) throw new EntitlementError(missing[0]);
+  if (await hasDistributedPlaybook(ctx.org.id, campaign.id)) await assertCanGoLive(ctx.org.id);
   const updated = await updateCampaignVersioned(ctx.org.id, campaign.id, input.expectedVersion, { status: "active", activatedAt: new Date() });
   await recordAudit({
     orgId: ctx.org.id,
@@ -136,6 +181,7 @@ export async function setPlaybookActive(ctx: CommandContext, input: { playbookId
   if (playbook.active === input.active) {
     throw new ConflictError(`This playbook was already turned ${input.active ? "on" : "off"} elsewhere. Reload to see its current state.`);
   }
+  if (input.active) await assertCanGoLive(ctx.org.id);
   const db = await getDb();
   const [updated] = await db
     .update(playbooks)
@@ -194,6 +240,7 @@ async function guarded<T>(fn: () => Promise<ActionResult<T>>): Promise<ActionRes
       return await fn();
     } catch (error) {
       if (error instanceof StatusTransitionError) return fail(error.message, "conflict");
+      if (error instanceof PaymentMethodRequiredError) return fail(error.message, error.providerConfigured ? "validation" : "not_configured");
       if (error instanceof z.ZodError) return fromZodError(error);
       throw error;
     }

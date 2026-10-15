@@ -32,15 +32,15 @@ export const productSections: ProductSection[] = [
     id: "posts-to-ads",
     label: "Posts to ads",
     title: "Turn approved posts into paid ads",
-    body: "Connect your Meta or TikTok ad account and launch approved creator posts as ads, using your own naming, tracking and call-to-action defaults.",
-    points: ["Ad naming templates and tracking parameters", "Default calls to action per platform", "Organic and paid results reported separately"],
+    body: "Set your ad naming, tracking and call-to-action defaults and prepare launch drafts from approved posts with paid-use rights. Launching to Meta and TikTok is coming soon.",
+    points: ["Ad naming templates and tracking parameters", "Default calls to action per platform", "Launch drafts only use posts with paid-use rights"],
   },
   {
     id: "ai-agent",
     label: "AI agent",
-    title: "Ask your reporting in plain language",
-    body: "Connect an AI assistant to your workspace through the MCP endpoint and ask about campaigns, playbooks and posts. It reads the same reporting you see in the dashboard.",
-    points: ["Read-only access you grant and can revoke", "Answers come from your workspace's reporting data", "Works with MCP-compatible assistants"],
+    title: "Ask your reporting in plain language (coming soon)",
+    body: "We are building an MCP connection so AI assistants can read your campaigns, playbooks and posts. Until then, the reporting API gives scripts and tools the same data you see in the dashboard.",
+    points: ["Planned: read-only access you grant and can revoke", "Available now: token-based reporting API", "Planned: support for MCP-compatible assistants"],
   },
 ];
 
@@ -68,13 +68,13 @@ export const workflowSteps: WorkflowStep[] = [
   {
     title: "Management & payment",
     summary: "Review posts, talk to creators and pay as they earn.",
-    you: "Approve or reject submitted posts and message creators where your plan includes it.",
-    platform: "Matches posts to the campaign by hashtag, tracks earnings, and charges in increments of your billing threshold.",
+    you: "Decide who joins, follow every submitted post and its review result, and message your team.",
+    platform: "Reviews submissions against the campaign's requirements and bills in increments of your billing threshold once charging is enabled.",
   },
   {
     title: "Paid ads",
-    summary: "Run the best posts as Meta and TikTok ads.",
-    you: "Connect an ad account, pick approved posts and confirm the launch.",
+    summary: "Prepare the best posts as Meta and TikTok ads (launching is coming soon).",
+    you: "Connect an ad account and prepare launch drafts from approved posts.",
     platform: "Applies your naming, tracking and call-to-action defaults. Nothing launches without your confirmation.",
   },
   {
@@ -86,17 +86,17 @@ export const workflowSteps: WorkflowStep[] = [
 ];
 
 export const integrations = [
-  { name: "Meta", detail: "Launch approved posts as Facebook and Instagram ads." },
-  { name: "TikTok", detail: "Launch approved posts as TikTok ads." },
+  { name: "Meta", detail: "Connect an ad account and prepare Facebook and Instagram ad drafts." },
+  { name: "TikTok", detail: "Connect an advertiser account and prepare TikTok ad drafts." },
   { name: "App Store Connect", detail: "Bring in App Store installs for app campaigns." },
   { name: "Google Play", detail: "Bring in Google Play installs for app campaigns." },
 ] as const;
 
 export const creatorParticipation = [
-  { title: "Verified accounts", body: "Creators connect the social accounts they post from, so every post is tied to a real, verified account." },
+  { title: "Your own accounts", body: "Creators link the social accounts they post from, and each submission is tied to one of those accounts. Automatic ownership verification is coming soon." },
   { title: "Playbooks, not guesswork", body: "Each campaign comes with a playbook: what to film, what to say and which hashtags to use." },
-  { title: "Reviewed before it counts", body: "Brands review submitted posts. Only approved posts are reported and can be used as ads." },
-  { title: "Paid once eligible", body: "Earnings follow the campaign's terms and are paid out once they become eligible." },
+  { title: "Reviewed before it counts", body: "Every submitted post is reviewed against the campaign's requirements. Only approved posts are reported, and only posts with paid-use rights can become ads." },
+  { title: "Payouts (coming soon)", body: "Earnings will follow the campaign's terms. Creator payouts are not live yet; your dashboard shows exactly what is and isn't available." },
 ] as const;
 
 /** Start links with CTA attribution (`/start?cta=...`). */

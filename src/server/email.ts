@@ -4,7 +4,7 @@ import { newId } from "@/lib/ids";
 import { site } from "@/config/site";
 import { getDb } from "./db/client";
 import { emailOutbox } from "./db/schema";
-import { env } from "./env";
+import { devToolsEnabled, env, isProduction } from "./env";
 
 export interface OutgoingEmail {
   to: string;
@@ -16,13 +16,29 @@ export interface OutgoingEmail {
 
 export type EmailDeliveryStatus = "sent" | "failed" | "provider_unconfigured";
 
+/**
+ * Removes one-time credentials (verification/reset `token=` values and
+ * invitation link tokens) from a message body. Only digests of those tokens
+ * are stored by the auth and invitation code; the outbox must not keep a
+ * usable copy either, or anyone who can read the table could take over
+ * accounts or accept invitations.
+ */
+export function redactOneTimeLinks(body: string): string {
+  return body.replace(/([?&]token=)[^\s&#]+/g, "$1[redacted]").replace(/(\/invitations\/)[^\s/?#]+/g, "$1[redacted]");
+}
+
+/** Production keeps only a redacted copy; development/test keep the full body so /dev/outbox and tests can follow links. */
+function outboxBody(body: string): string {
+  return isProduction() && !devToolsEnabled() ? redactOneTimeLinks(body) : body;
+}
+
 export function emailProviderConfigured(): boolean {
   return Boolean(env().RESEND_API_KEY && env().EMAIL_FROM);
 }
 
 /**
- * Records the message in the outbox and delivers it through the configured
- * provider. Without a provider the message stays `provider_unconfigured` —
+ * Records the message in the outbox (one-time links redacted in production)
+ * and delivers it through the configured provider. Without a provider the message stays `provider_unconfigured` —
  * callers must surface that state honestly (no "email sent" claims). In
  * development the outbox can be read at /dev/outbox.
  */
@@ -35,7 +51,7 @@ export async function sendEmail(message: OutgoingEmail): Promise<{ id: string; s
     toEmail: message.to,
     template: message.template,
     subject: message.subject,
-    body: message.body,
+    body: outboxBody(message.body),
     status: configured ? "queued" : "provider_unconfigured",
   });
   if (!configured) return { id, status: "provider_unconfigured" };

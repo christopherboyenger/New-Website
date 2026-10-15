@@ -68,7 +68,7 @@ Columns are the stages above. "Yes" under **Implemented** means the code exists 
 | --- | --- | --- | --- | --- | --- | --- |
 | Accounts, sessions, email verification, password reset | Yes | per deployment (`AUTH_SECRET`, email) | n/a | per deployment | per deployment | Email delivery needs the `email` capability. |
 | Workspaces, members, invitations, roles | Yes | per deployment | n/a | per deployment | per deployment | Invitation emails need `email`. |
-| Campaigns, playbooks (drafts, publish gate), branding, ad settings | Yes | per deployment | n/a | per deployment | per deployment | Publishing needs a provider-confirmed payment method (commercial policy). Editing never publishes. |
+| Campaigns, playbooks (drafts, publish gate), branding, ad settings | Yes | per deployment | n/a | per deployment | per deployment | Publishing, turning a published playbook on, and activating a campaign whose playbook is on all need a provider-confirmed payment method (commercial policy). Editing never publishes. |
 | Organic reporting UI and Reporting API | Yes (reads stored metrics) | per deployment | n/a | per deployment | per deployment | Shows "—" / unavailable until metrics exist. |
 | **Metric ingestion** (post views/likes, ad metrics, store installs) | **No** | — | — | — | — | No job pulls metrics from TikTok, Instagram, Meta, App Store or Play. Metric tables are filled only by tests and labelled dev fixtures. |
 | Payment method setup (Stripe Checkout, setup mode) | Yes | per deployment (`STRIPE_SECRET_KEY`) | Stripe account activation | per deployment | per deployment | Return reconciliation and webhooks both supported. |

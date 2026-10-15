@@ -170,7 +170,7 @@ function PostsToAdsDiagram() {
 
 function AgentDiagram() {
   return (
-    <Frame title="AI assistant connected over MCP">
+    <Frame title="Planned: AI assistant connected over MCP">
       <div className="flex flex-col gap-3">
         <div className="flex justify-end">
           <p className="max-w-[80%] rounded-[12px] rounded-br-[4px] bg-ink px-3.5 py-2.5 text-[13px] text-white">

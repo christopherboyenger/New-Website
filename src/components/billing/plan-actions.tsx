@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Check } from "lucide-react";
-import { commercialPolicy } from "@/config/commercial-policy";
+import { commercialPolicy, planSummary } from "@/config/commercial-policy";
 import { formatUsd } from "@/lib/money";
 import { startPlanManagementAction, startUpgradeAction } from "@/app/home/[org]/(workspace)/billing/actions";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ export function UpgradeButton({ slug }: { slug: string }) {
       >
         <div className="flex flex-col gap-3 text-sm text-ink-2">
           <p>
-            <span className="font-semibold text-ink">{formatUsd(unlimited.monthlyPriceCents)}/month.</span> {unlimited.summary}
+            <span className="font-semibold text-ink">{formatUsd(unlimited.monthlyPriceCents)}/month.</span> {planSummary("unlimited")}
           </p>
           <ul className="flex flex-col gap-1.5">
             {unlimited.features.map((feature) => (

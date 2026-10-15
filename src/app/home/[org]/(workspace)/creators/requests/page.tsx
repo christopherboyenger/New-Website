@@ -68,7 +68,7 @@ export default async function JoinRequestsPage({ params, searchParams }: { param
       {header}
       <Card className="overflow-hidden">
         {page.total === 0 ? (
-          <EmptyState
+          <EmptyState headingLevel={2}
             title="No pending requests"
             description="When one of your campaigns requires creator approval, creators who ask to join appear here."
           />

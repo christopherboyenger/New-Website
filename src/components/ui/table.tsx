@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 /** Wide tables scroll horizontally inside their card instead of dropping columns. */
 export function TableScroll({ children, className, label }: { children: ReactNode; className?: string; label: string }) {
   return (
-    <div className={cn("w-full overflow-x-auto", className)} role="region" aria-label={label} tabIndex={0}>
+    <div className={cn("relative w-full overflow-x-auto", className)} role="region" aria-label={label} tabIndex={0}>
       {children}
     </div>
   );

@@ -107,10 +107,18 @@ export async function verifyEmailToken(token: string): Promise<AuthResult<{ user
     .where(and(eq(emailTokens.tokenDigest, digest), eq(emailTokens.purpose, "verify_email"), isNull(emailTokens.consumedAt), gt(emailTokens.expiresAt, now)))
     .limit(1);
   if (!row) return { ok: false, error: "This verification link is invalid or has expired." };
-  await db.transaction(async (tx) => {
-    await tx.update(emailTokens).set({ consumedAt: now }).where(eq(emailTokens.id, row.id));
+  // Conditional claim: concurrent submissions of the same link cannot both succeed.
+  const claimed = await db.transaction(async (tx) => {
+    const [claim] = await tx
+      .update(emailTokens)
+      .set({ consumedAt: now })
+      .where(and(eq(emailTokens.id, row.id), isNull(emailTokens.consumedAt)))
+      .returning({ id: emailTokens.id });
+    if (!claim) return false;
     await tx.update(users).set({ emailVerifiedAt: now }).where(eq(users.id, row.userId));
+    return true;
   });
+  if (!claimed) return { ok: false, error: "This verification link is invalid or has expired." };
   return { ok: true, value: { userId: row.userId } };
 }
 
@@ -152,10 +160,23 @@ export async function resetPassword(token: string, newPassword: string): Promise
     .limit(1);
   if (!row) return { ok: false, error: "This reset link is invalid or has expired." };
   const passwordHash = await hashPassword(parsed.data);
-  await db.transaction(async (tx) => {
-    await tx.update(emailTokens).set({ consumedAt: now }).where(eq(emailTokens.id, row.id));
+  const claimed = await db.transaction(async (tx) => {
+    // Conditional claim: a link used concurrently resets the password at most once.
+    const [claim] = await tx
+      .update(emailTokens)
+      .set({ consumedAt: now })
+      .where(and(eq(emailTokens.id, row.id), isNull(emailTokens.consumedAt)))
+      .returning({ id: emailTokens.id });
+    if (!claim) return false;
+    // Any other outstanding reset link for this account stops working too.
+    await tx
+      .update(emailTokens)
+      .set({ consumedAt: now })
+      .where(and(eq(emailTokens.userId, row.userId), eq(emailTokens.purpose, "reset_password"), isNull(emailTokens.consumedAt)));
     await tx.update(users).set({ passwordHash, emailVerifiedAt: now }).where(eq(users.id, row.userId));
+    return true;
   });
+  if (!claimed) return { ok: false, error: "This reset link is invalid or has expired." };
   await revokeAllSessionsForUser(row.userId);
   await recordAudit({ orgId: null, actorUserId: row.userId, action: "user.password_reset" });
   await createSession(row.userId);

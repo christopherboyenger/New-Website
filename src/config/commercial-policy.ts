@@ -16,7 +16,10 @@ export interface PlanDefinition {
   monthlyPriceCents: number;
   /** Whether the subscription amount is credited toward campaign spend. */
   creditedToCampaignSpend: boolean;
+  /** Shown only while no credit applies (see `planSummary`). */
   summary: string;
+  /** Shown instead of `summary` once the credit toward campaign spend is decided and applied. */
+  creditedSummary?: string;
   features: string[];
 }
 
@@ -37,7 +40,8 @@ export const commercialPolicy = {
       displayName: "Unlimited",
       monthlyPriceCents: 99_00,
       creditedToCampaignSpend: true,
-      summary: "Monthly minimum spend, credited toward campaign spend.",
+      summary: "Monthly subscription for advanced campaign controls.",
+      creditedSummary: "Monthly minimum spend, credited toward campaign spend.",
       features: [
         "Manual pricing and CPM caps",
         "Demographic and creator-level targeting",
@@ -72,6 +76,21 @@ export const commercialPolicy = {
 
 export function planDisplayName(planId: PlanId): string {
   return commercialPolicy.plans[planId].displayName;
+}
+
+/**
+ * Whether a plan's subscription is actually credited toward campaign spend.
+ * No subscription credit is granted while the policy is undecided (BILLING-14),
+ * so no copy may promise one until then.
+ */
+export function subscriptionCreditApplies(planId: PlanId): boolean {
+  return commercialPolicy.decided && commercialPolicy.plans[planId].creditedToCampaignSpend;
+}
+
+/** Plan summary for pricing and upgrade copy; mentions the spend credit only when it applies. */
+export function planSummary(planId: PlanId): string {
+  const plan: PlanDefinition = commercialPolicy.plans[planId];
+  return subscriptionCreditApplies(planId) && plan.creditedSummary ? plan.creditedSummary : plan.summary;
 }
 
 /** One disclosure string reused at payment setup, confirmation, pricing and billing. */

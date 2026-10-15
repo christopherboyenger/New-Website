@@ -14,7 +14,15 @@ import {
   StatusTransitionError,
 } from "./campaign-status";
 import { getDb } from "./db/client";
-import { auditLog, campaigns, playbooks } from "./db/schema";
+import { auditLog, billingAccounts, campaigns, playbooks } from "./db/schema";
+
+async function setPaymentStatus(orgId: string, paymentMethodStatus: "none" | "pending" | "ready") {
+  const db = await getDb();
+  await db
+    .insert(billingAccounts)
+    .values({ orgId, paymentMethodStatus })
+    .onConflictDoUpdate({ target: billingAccounts.orgId, set: { paymentMethodStatus } });
+}
 
 async function auditRows(targetId: string) {
   const db = await getDb();
@@ -198,6 +206,7 @@ describe("playbook distribution switch", () => {
     const { org, owner } = await makeOrg();
     const campaign = await makeCampaign(org.id);
     const playbook = await makePlaybook(org.id, campaign.id, { status: "published", active: false, publishedRevision: 1 });
+    await setPaymentStatus(org.id, "ready");
     await signInAs(owner.id);
 
     const on = await changePlaybookActiveForSlug(org.slug, { playbookId: playbook.id, active: true });
@@ -208,6 +217,45 @@ describe("playbook distribution switch", () => {
     const row = await playbookRow(playbook.id);
     expect([row.active, row.version, row.status]).toEqual([false, 1, "published"]);
     expect((await auditRows(playbook.id)).map((a) => a.action).sort()).toEqual(["playbook.activate", "playbook.deactivate"]);
+  });
+
+  it("will not put a playbook live without a confirmed payment method, but always lets it be turned off", async () => {
+    const { org, owner } = await makeOrg();
+    const campaign = await makeCampaign(org.id);
+    const off = await makePlaybook(org.id, campaign.id, { status: "published", active: false, publishedRevision: 1 });
+    const on = await makePlaybook(org.id, campaign.id, { status: "published", active: true, publishedRevision: 1 });
+    await signInAs(owner.id);
+
+    for (const status of ["none", "pending"] as const) {
+      await setPaymentStatus(org.id, status);
+      const result = await changePlaybookActiveForSlug(org.slug, { playbookId: off.id, active: true });
+      expect(result.ok).toBe(false);
+      expect((await playbookRow(off.id)).active).toBe(false);
+    }
+    expect((await auditRows(off.id)).length).toBe(0);
+
+    const turnedOff = await changePlaybookActiveForSlug(org.slug, { playbookId: on.id, active: false });
+    expect(turnedOff).toMatchObject({ ok: true, data: { active: false } });
+  });
+
+  it("will not reactivate a campaign whose playbook is switched on unless a payment method is ready", async () => {
+    const { org, owner } = await makeOrg();
+    const live = await makeCampaign(org.id, { status: "paused" });
+    await makePlaybook(org.id, live.id, { status: "published", active: true, publishedRevision: 1 });
+    const empty = await makeCampaign(org.id);
+    await signInAs(owner.id);
+
+    const blocked = await changeCampaignStatusForSlug(org.slug, { campaignId: live.id, expectedVersion: live.version, status: "active" });
+    expect(blocked.ok).toBe(false);
+    expect((await campaignRow(live.id)).status).toBe("paused");
+
+    // A campaign with no playbook switched on distributes nothing, so activating it needs no card.
+    const plain = await changeCampaignStatusForSlug(org.slug, { campaignId: empty.id, expectedVersion: empty.version, status: "active" });
+    expect(plain).toMatchObject({ ok: true, data: { status: "active" } });
+
+    await setPaymentStatus(org.id, "ready");
+    const allowed = await changeCampaignStatusForSlug(org.slug, { campaignId: live.id, expectedVersion: live.version, status: "active" });
+    expect(allowed).toMatchObject({ ok: true, data: { status: "active" } });
   });
 
   it("has no switch for drafts", async () => {

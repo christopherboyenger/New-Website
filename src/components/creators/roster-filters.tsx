@@ -120,7 +120,7 @@ export function RosterFilters({ values, campaigns }: { values: RosterFilterValue
 
 function FilterSelect({ id, name, label, value, onChange, children }: { id: string; name: string; label: string; value: string; onChange: () => void; children: React.ReactNode }) {
   return (
-    <div className="min-w-0 flex-1 sm:flex-none">
+    <div className="min-w-36 flex-1 sm:flex-none">
       <label htmlFor={id} className="sr-only">
         {label}
       </label>

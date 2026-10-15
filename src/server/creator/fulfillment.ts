@@ -307,7 +307,8 @@ export async function listSubmissions(ctx: Pick<CreatorContext, "creator">, page
       url: posts.url,
       campaignName: campaigns.name,
       brandName: organizations.name,
-      playbookName: playbooks.name,
+      // Name of the frozen revision the post was made from: the brand's working draft (renames included) is never shown to creators.
+      playbookName: playbookRevisions.name,
       playbookRevision: posts.playbookRevision,
       submittedAt: posts.submittedAt,
       reviewStatus: posts.reviewStatus,
@@ -317,7 +318,10 @@ export async function listSubmissions(ctx: Pick<CreatorContext, "creator">, page
     .from(posts)
     .innerJoin(organizations, eq(organizations.id, posts.orgId))
     .leftJoin(campaigns, and(eq(campaigns.id, posts.campaignId), eq(campaigns.orgId, posts.orgId)))
-    .leftJoin(playbooks, and(eq(playbooks.id, posts.playbookId), eq(playbooks.orgId, posts.orgId)))
+    .leftJoin(
+      playbookRevisions,
+      and(eq(playbookRevisions.playbookId, posts.playbookId), eq(playbookRevisions.orgId, posts.orgId), eq(playbookRevisions.revision, posts.playbookRevision)),
+    )
     .where(where)
     .orderBy(desc(posts.submittedAt), desc(posts.id))
     .limit(SUBMISSIONS_PAGE_SIZE)

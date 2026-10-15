@@ -12,6 +12,13 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Parallel dev-server build folders (NEXT_DIST_DIR=.next-<name>, including the e2e suite's .next-e2e),
+    // the embedded dev databases and Playwright output.
+    ".next-*/**",
+    ".data/**",
+    "test-results/**",
+    "playwright-report/**",
+    "blob-report/**",
   ]),
 ]);
 

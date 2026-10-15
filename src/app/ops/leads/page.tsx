@@ -29,7 +29,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
       />
       <Card>
         {list.total === 0 ? (
-          <EmptyState title="No leads yet" description="Leads appear here when visitors enter their work email in the acquisition funnel." />
+          <EmptyState headingLevel={2} title="No leads yet" description="Leads appear here when visitors enter their work email in the acquisition funnel." />
         ) : (
           <>
             <TableScroll label="Leads">

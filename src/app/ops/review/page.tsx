@@ -32,7 +32,7 @@ export default async function ReviewQueuePage({ searchParams }: { searchParams: 
       />
       {queue.total === 0 ? (
         <Card>
-          <EmptyState title="Nothing to review" description="No posts are waiting for content review. New submissions appear here oldest first." />
+          <EmptyState headingLevel={2} title="Nothing to review" description="No posts are waiting for content review. New submissions appear here oldest first." />
         </Card>
       ) : (
         <>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, UserPlus } from "lucide-react";
 import { hasPermission, loadOrgContext, requireOrgPage } from "@/server/authz";
 import {
   ACTIVITY_WEEKS,
@@ -23,6 +23,7 @@ import { CreatorDrawer } from "@/components/creators/creator-drawer";
 import { RosterFilters } from "@/components/creators/roster-filters";
 import { RosterTable, type SortLink } from "@/components/creators/roster-table";
 import { SummaryCards } from "@/components/creators/summary-cards";
+import { countJoinRequests } from "@/server/campaign-admission";
 import { removeCreatorsAction, restoreCreatorsAction } from "./actions";
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -50,12 +51,13 @@ export default async function CreatorsPage({ params, searchParams }: { params: P
   const href = (patch: Partial<RosterQuery>) => `${basePath}${rosterQueryString(query, patch)}`;
   const canManage = hasPermission(ctx, "creator:manage");
 
-  const [counts, summary, table, campaigns, detail] = await Promise.all([
+  const [counts, summary, table, campaigns, detail, pendingRequests] = await Promise.all([
     rosterCounts(ctx),
     rosterSummary(ctx),
     listRoster(ctx, query),
     rosterCampaignOptions(ctx),
     query.creator ? loadCreatorDetail(ctx, query.creator) : Promise.resolve(null),
+    canManage ? countJoinRequests(ctx) : Promise.resolve(0),
   ]);
 
   const sortLinks = Object.fromEntries(
@@ -74,7 +76,7 @@ export default async function CreatorsPage({ params, searchParams }: { params: P
   const restoreAction = restoreCreatorsAction.bind(null, ctx.org.slug);
 
   const empty = filtered ? (
-    <EmptyState
+    <EmptyState headingLevel={2}
       title="No creators match these filters"
       description="Try a different name or handle, or clear the filters."
       action={
@@ -84,9 +86,9 @@ export default async function CreatorsPage({ params, searchParams }: { params: P
       }
     />
   ) : query.tab === "removed" ? (
-    <EmptyState title="No removed creators" description="Creators you remove from your roster appear here, and you can restore them at any time." />
+    <EmptyState headingLevel={2} title="No removed creators" description="Creators you remove from your roster appear here, and you can restore them at any time." />
   ) : (
-    <EmptyState
+    <EmptyState headingLevel={2}
       title="No creators yet"
       description="Creators appear here once they join one of your campaigns or have a post approved. Publish a playbook so creators know what to make."
     />
@@ -94,7 +96,24 @@ export default async function CreatorsPage({ params, searchParams }: { params: P
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pb-10 pt-8 sm:px-6 sm:pt-10 lg:px-8">
-      <h1 className="mb-4 text-xl font-semibold leading-7 text-ink">Creators</h1>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold leading-7 text-ink">Creators</h1>
+        {canManage ? (
+          <Link href={`${basePath}/requests`} className={buttonClasses("secondary", "sm", "max-md:h-11")}>
+            <UserPlus className="size-3.5" aria-hidden="true" />
+            Join requests
+            {pendingRequests > 0 ? (
+              <>
+                {" "}
+                <span className="ml-0.5 rounded-full bg-ink px-1.5 text-[11px] font-semibold leading-[18px] text-white">
+                  {pendingRequests.toLocaleString("en-US")}
+                  <span className="sr-only"> pending</span>
+                </span>
+              </>
+            ) : null}
+          </Link>
+        ) : null}
+      </div>
       <LinkTabs
         label="Creator roster"
         activeKey={query.tab}

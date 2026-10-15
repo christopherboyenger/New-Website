@@ -47,12 +47,30 @@ To run more than one dev server at a time, give each its own database and build 
 | `npm run build` / `npm start` | Production build / serve |
 | `npm test` | Unit and integration tests (Vitest, in-memory PGlite per test) |
 | `npm run test:watch` | Vitest in watch mode |
-| `npm run test:e2e` | Playwright end-to-end tests |
+| `npm run test:e2e` | Playwright end-to-end journeys (see below) |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
 | `npm run db:push` | Syncs the schema to the local dev database (no migration files) |
 | `npm run db:generate` | Generates SQL migrations into `./drizzle` from `src/server/db/schema` |
 | `npm run db:migrate` | Applies `./drizzle` migrations to `DATABASE_URL` |
+
+## End-to-end tests
+
+`npm run test:e2e` runs the Playwright journeys in `tests/e2e/` (config: `playwright.config.ts`, Chromium only, one worker). Playwright starts its own `next dev` on port 3124 (override with `E2E_PORT`) with a throwaway database that is deleted and recreated on every run (`PGLITE_DIR=.data/pglite-e2e`) and its own build folder (`NEXT_DIST_DIR=.next-e2e`), so your development data is never touched. Stop anything else listening on that port first.
+
+| Journey | File |
+| --- | --- |
+| Brand sign-up → every onboarding screen → "I'll finish later" → playbook editor (edit, save draft, reload) → Organic › Campaigns shows the campaign Inactive | `brand-onboarding.spec.ts` |
+| New campaign form: field errors tied to their inputs, invalid hashtag, then a created campaign that starts Inactive | `campaign-create.spec.ts` |
+| Creator signs up and links an account; sees nothing until the brand publishes a playbook (blocked without a payment method, asserted) and activates the campaign | `creator-portal.spec.ts` |
+| Members: invite → "not emailed" result with a one-time link → copy link → the invitee signs up, verifies via `/dev/outbox`, joins as a Member and cannot see Billing | `members-invitation.spec.ts` |
+| Integrations: create an API token through the password step-up → `GET /api/v1/campaigns` returns only that workspace; a wrong or missing token gets 401, a missing scope 403 | `reporting-api.spec.ts` |
+
+The journeys assume a deployment without provider credentials (email, Stripe), so the server is started without `DATABASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `STRIPE_SECRET_KEY` or `STRIPE_WEBHOOK_SECRET`; don't put those in a `.env*` file when running the suite. Each test creates its own users and workspaces, so tests can run alone (`npx playwright test creator-portal`) or repeatedly (`--repeat-each`).
+
+**Test-only hook.** Publishing needs a payment method confirmed by the payment provider, which this environment cannot produce. The creator journey therefore calls `POST /api/e2e/payment-method` (`src/app/api/e2e/payment-method/route.e2e.ts` → `tests/e2e/support/payment-method-hook.ts`), which records the signed-in owner's workspace card as confirmed. It is a route only when the dev server runs with `E2E_TEST_HOOKS=1` (`pageExtensions` in `next.config.ts`); every other build ignores the file, and the hook also refuses production, `DATABASE_URL` and non-owners.
+
+Chromium is taken from `/opt/pw-browsers/chromium`; set `E2E_CHROMIUM_PATH` to use another binary. While writing tests you can start the server yourself with the same environment and pass `E2E_REUSE_SERVER=1`. Failure traces and screenshots go to `test-results/` (`npx playwright show-trace <trace.zip>`).
 
 ## Environment variables
 

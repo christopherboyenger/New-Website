@@ -43,6 +43,7 @@ export default async function WebhooksPage({ searchParams }: { searchParams: Pro
         />
         {list.total === 0 ? (
           <EmptyState
+            headingLevel={2}
             title={filter === "all" ? "No webhook issues" : `No ${filter} webhooks`}
             description="Quarantined and failed inbound events appear here for reconciliation."
           />

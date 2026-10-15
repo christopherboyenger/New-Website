@@ -379,6 +379,7 @@ export function PlaybookEditor({ data }: { data: PlaybookEditorData }) {
         </aside>
 
         <main className="flex min-w-0 flex-col gap-4" aria-label="Playbook content">
+          <h1 className="sr-only">Edit playbook{draft.name.trim() ? `: ${draft.name.trim()}` : ""}</h1>
           {!data.canPublish ? (
             <InlineAlert tone="info" className="lg:hidden">
               You can edit and save this draft. Only workspace owners can publish it.

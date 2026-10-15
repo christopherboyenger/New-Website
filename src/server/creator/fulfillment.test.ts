@@ -193,6 +193,9 @@ describe("submission history and earnings", () => {
     expect(history.rows.map((r) => r.url).sort()).toEqual(["https://www.tiktok.com/@creator_tt/video/2", "https://www.tiktok.com/@creator_tt/video/7300000000000000001"]);
     expect(history.rows.find((r) => r.reviewStatus === "rejected")).toMatchObject({ reviewReason: "Missing the hook scene." });
     expect(history.rows.find((r) => r.reviewStatus === "submitted")).toMatchObject({ brandName: "Brand", playbookRevision: 1, adRights: { revoked: false } });
+    // The playbook name comes from the frozen revision the post was made from, never the brand's working draft.
+    expect(history.rows.find((r) => r.reviewStatus === "submitted")?.playbookName).toBe("Published name");
+    expect(JSON.stringify(history)).not.toMatch(/Playbook \d+/);
     expect((await listSubmissions({ creator: other })).rows.map((r) => r.url)).toEqual(["https://www.tiktok.com/@other/video/9"]);
     expect(await submissionCounts({ creator })).toEqual({ submitted: 1, approved: 0, rejected: 1 });
   });

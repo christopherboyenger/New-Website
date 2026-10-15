@@ -39,6 +39,8 @@ export function capability(key: CapabilityKey): CapabilityState {
 export function capabilities(): CapabilityState[] {
   const e = env();
   const encryption = safe(credentialEncryptionConfigured);
+  const meta = Boolean(e.META_APP_ID && e.META_APP_SECRET);
+  const tiktok = Boolean(e.TIKTOK_BUSINESS_APP_ID && e.TIKTOK_BUSINESS_APP_SECRET);
   return [
     {
       key: "database",
@@ -77,14 +79,22 @@ export function capabilities(): CapabilityState[] {
     {
       key: "meta_ads",
       label: "Meta Ads app",
-      configured: Boolean(e.META_APP_ID && e.META_APP_SECRET),
-      detail: e.META_APP_ID ? "App credentials configured; customer authorization and app review still apply." : "This product's Meta app is not registered/configured.",
+      configured: meta,
+      detail: meta
+        ? "App credentials configured; customer authorization and app review still apply."
+        : e.META_APP_ID || e.META_APP_SECRET
+          ? "Meta app credentials are incomplete: both META_APP_ID and META_APP_SECRET are required."
+          : "This product's Meta app is not registered/configured.",
     },
     {
       key: "tiktok_ads",
       label: "TikTok Ads app",
-      configured: Boolean(e.TIKTOK_BUSINESS_APP_ID && e.TIKTOK_BUSINESS_APP_SECRET),
-      detail: e.TIKTOK_BUSINESS_APP_ID ? "App credentials configured; advertiser authorization still applies." : "This product's TikTok Business app is not registered/configured.",
+      configured: tiktok,
+      detail: tiktok
+        ? "App credentials configured; advertiser authorization still applies."
+        : e.TIKTOK_BUSINESS_APP_ID || e.TIKTOK_BUSINESS_APP_SECRET
+          ? "TikTok app credentials are incomplete: both TIKTOK_BUSINESS_APP_ID and TIKTOK_BUSINESS_APP_SECRET are required."
+          : "This product's TikTok Business app is not registered/configured.",
     },
     {
       key: "google_play",

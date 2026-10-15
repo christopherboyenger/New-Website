@@ -1,0 +1,7 @@
+# Honesty / money-and-policy review decisions
+
+Format: `HONESTY-NN — decision — rationale — spec reference`
+
+- HONESTY-01 — Turning a published playbook on, and activating a campaign that already has a published playbook switched on, need the same provider-confirmed payment method as publishing when `commercialPolicy.publishing.requiresPaymentMethod` is true. Turning a playbook off, pausing, and activating a campaign with no playbook switched on stay ungated. — Both switches put a playbook in front of creators ("put your playbook live"); without the check a workspace whose card was removed after publishing could go live again with nothing to charge. — B07 "Add a payment method to put your playbook live"; PLAYBOOKS-04; commercial-policy `publishing`.
+- HONESTY-02 — The Unlimited plan's "credited toward campaign spend" summary is shown only when `subscriptionCreditApplies()` (policy `decided` and `creditedToCampaignSpend`); until then pricing and the upgrade dialog use a neutral summary. — BILLING-14 grants no subscription credit while the policy is undecided, so promising it would be copy for an unperformed money effect. — DEC-007; CLAUDE.md non-negotiable 4.
+- HONESTY-03 — Capability details never say "configured" for a capability whose `configured` flag is false; half-set Meta/TikTok credentials are reported as incomplete. — The registry is the source of truth for readiness screens. — production-requirements.md §5; src/server/readiness.ts.

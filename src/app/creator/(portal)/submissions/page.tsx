@@ -31,7 +31,7 @@ export default async function CreatorSubmissionsPage({ searchParams }: { searchP
 
       <Card className="mt-6 overflow-hidden">
         {page.total === 0 ? (
-          <EmptyState
+          <EmptyState headingLevel={2}
             title="No submissions yet"
             description="Join a campaign, follow its playbook, post on your account, then submit the link from the playbook page."
             action={

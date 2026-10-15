@@ -74,6 +74,32 @@ describe("authentication", () => {
     expect((await signIn("c@example.com", "brand new password")).ok).toBe(true);
   });
 
+  it("lets a reset link work only once, even concurrently, and retires other outstanding reset links", async () => {
+    await signUp({ email: "d@example.com", password: "original password", firstName: "D" });
+    await requestPasswordReset("d@example.com");
+    await requestPasswordReset("d@example.com");
+    const db = await getDb();
+    const tokens = (await db.select().from(emailOutbox))
+      .filter((m) => m.template === "reset_password")
+      .map((m) => linkToken(m.body));
+    expect(tokens).toHaveLength(2);
+    const [first, second] = await Promise.all([resetPassword(tokens[0], "first new password"), resetPassword(tokens[0], "second new password")]);
+    expect([first.ok, second.ok].filter(Boolean)).toHaveLength(1);
+    // The other link from before the reset no longer works.
+    expect((await resetPassword(tokens[1], "attacker password!")).ok).toBe(false);
+    resetRequestContext();
+    expect((await signIn("d@example.com", "attacker password!")).ok).toBe(false);
+  });
+
+  it("consumes a verification link once even when submitted concurrently", async () => {
+    await signUp({ email: "e@example.com", password: "long enough password", firstName: "E" });
+    const db = await getDb();
+    const [mail] = await db.select().from(emailOutbox);
+    const token = linkToken(mail.body);
+    const results = await Promise.all([verifyEmailToken(token), verifyEmailToken(token)]);
+    expect(results.filter((r) => r.ok)).toHaveLength(1);
+  });
+
   it("signs out by revoking the session", async () => {
     const user = await makeUser();
     await signInAs(user.id);

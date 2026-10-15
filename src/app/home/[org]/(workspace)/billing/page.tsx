@@ -44,7 +44,7 @@ export default async function BillingPage({ params, searchParams }: { params: Pr
       <PageContainer width="medium">
         <PageHeader title="Billing" />
         <Card>
-          <EmptyState
+          <EmptyState headingLevel={2}
             icon={<Lock className="size-8" aria-hidden="true" />}
             title="Billing is visible to workspace owners only"
             description="Plan, payment method, charges and business details are managed by the owners of this workspace. Ask an owner if something needs to change."

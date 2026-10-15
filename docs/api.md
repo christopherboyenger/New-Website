@@ -145,7 +145,7 @@ Playbooks also include `campaign_id`. `active` means the campaign is active / th
 
 ## Freshness
 
-Metrics are refreshed by ingestion jobs; `data_freshness_seconds` (300) is the target delay, not a guarantee. Store install reports can arrive days after the install date.
+`data_freshness_seconds` (300) is the target delay for metric ingestion, not a measured or guaranteed value. This build has no metric ingestion job yet (see [readiness](./readiness.md), "Metric ingestion"), so metrics stay empty until one is deployed; until then, `views`/`spend` totals of `0` mean "nothing has been ingested", not confirmed zero activity. Store install reports can arrive days after the install date.
 
 ## Example
 

@@ -31,7 +31,7 @@ export default async function StartPage({ searchParams }: { searchParams: Promis
   const lead = await getVisitorLead();
 
   return (
-    <div className="relative min-h-dvh bg-black">
+    <main className="relative min-h-dvh bg-black">
       <div aria-hidden="true" inert className="fixed inset-0 opacity-45">
         <ResonanceField intensity={0.7} />
         <div className="absolute top-0 left-0 flex h-16 items-center px-4 text-[22px] font-semibold tracking-tight text-white sm:px-6 lg:px-8">
@@ -63,7 +63,7 @@ export default async function StartPage({ searchParams }: { searchParams: Promis
             : null
         }
       />
-    </div>
+    </main>
   );
 }
 

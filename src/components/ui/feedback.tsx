@@ -79,17 +79,21 @@ export function EmptyState({
   action,
   icon,
   className,
+  headingLevel = 3,
 }: {
   title: ReactNode;
   description?: ReactNode;
   action?: ReactNode;
   icon?: ReactNode;
   className?: string;
+  /** Use 2 when the empty state sits directly under the page's h1 (no h2 section between). */
+  headingLevel?: 2 | 3;
 }) {
+  const Heading = headingLevel === 2 ? "h2" : "h3";
   return (
     <div className={cn("flex flex-col items-center justify-center gap-2 px-6 py-12 text-center", className)}>
       {icon ? <div className="mb-1 text-subtle">{icon}</div> : <EmptyIllustration />}
-      <h3 className="text-[15px] font-semibold text-ink">{title}</h3>
+      <Heading className="text-[15px] font-semibold text-ink">{title}</Heading>
       {description ? <p className="max-w-sm text-sm text-muted">{description}</p> : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>
