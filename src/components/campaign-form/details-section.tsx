@@ -30,7 +30,7 @@ export function DetailsSection({
   const currentTag = normalizeHashtag(state.hashtag);
 
   return (
-    <SectionFrame id="details" active={active} title="Campaign details" description="Name the campaign and choose the hashtag that ties creators' posts to it.">
+    <SectionFrame id="details" active={active} title="Campaign Details" description="Name the campaign and choose the hashtag that ties creators' posts to it.">
       <Field id="campaign-name" label="Campaign Name" description="Enter your campaign name" error={nameError}>
         <Input
           id="campaign-name"

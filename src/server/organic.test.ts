@@ -19,6 +19,7 @@ import {
   loadPostsPage,
   resolveFilterLabels,
   workspaceHasPosts,
+  type PostListParams,
 } from "./organic";
 
 const range = { from: "2026-10-01", to: "2026-10-07" };
@@ -215,8 +216,8 @@ describe("organic posts tab", () => {
     await makePost(org.id, creator.id, { campaignId: campaign.id, playbookId: null, platform: "tiktok", handle: "custom_one", postedAt });
     await makePost(org.id, creator.id, { campaignId: null, platform: "tiktok", handle: "stray", postedAt });
 
-    const base = { ...noFilters, range, mode: "created" as const, review: null, q: "", sort: "handle", order: "asc" as const, page: 1 };
-    const handles = async (patch: Partial<typeof base>) => (await loadPostsPage(org.id, { ...base, ...patch })).data.map((p) => p.handle);
+    const base: PostListParams = { ...noFilters, range, mode: "created", review: null, q: "", sort: "handle", order: "asc", page: 1 };
+    const handles = async (patch: Partial<PostListParams>) => (await loadPostsPage(org.id, { ...base, ...patch })).data.map((p) => p.handle);
     expect(await handles({})).toEqual(["custom_one", "tube_star"]);
     expect(await handles({ platform: "youtube" })).toEqual(["tube_star"]);
     expect(await handles({ playbook: "0" })).toEqual(["custom_one"]);

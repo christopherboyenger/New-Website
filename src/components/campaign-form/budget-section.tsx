@@ -50,13 +50,17 @@ export function BudgetSection({ active, state, update, errors, entitlements, gat
               value: "manual",
               label: "Manual",
               disabled: true,
-              badge: <Badge>Not available yet</Badge>,
+              badge: (
+                <>
+                  {entitlements.manual_pricing ? null : <PlanBadge planName={gate.planName} />}
+                  <Badge>Not available yet</Badge>
+                </>
+              ),
               description: (
                 <>
                   Fully customize your budget
                   <span className="mt-1 block text-[13px] text-muted">
                     Manual rate cards aren&apos;t available yet, so new campaigns use Daily pricing.
-                    {entitlements.manual_pricing ? null : <> Manual pricing will require the {gate.planName} plan.</>}
                   </span>
                 </>
               ),

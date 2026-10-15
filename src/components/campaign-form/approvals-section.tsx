@@ -32,7 +32,7 @@ export function ApprovalsSection({ active, state, update, errors, entitlements, 
         />
         <SkipRequire
           id="dedicated-account"
-          label="Account creation needed"
+          label="Account Creation needed"
           description="Creators must make a dedicated account to post about your brand"
           required={state.requireDedicatedAccount}
           onChange={(required) => update({ requireDedicatedAccount: required })}

@@ -96,7 +96,7 @@ export type HashtagCheck = { tag: string; status: "available" | "taken" } | { ta
  * campaign; nothing about that campaign is revealed.
  */
 export async function checkCampaignHashtagAction(slug: string, tag: unknown): Promise<ActionResult<HashtagCheck>> {
-  return runAction(async () => {
+  return runAction<HashtagCheck>(async () => {
     const ctx = await requireOrgAction(slug, "campaign:manage");
     const parsed = z.string().max(200).safeParse(tag);
     if (!parsed.success) return fail("Enter a hashtag.", "validation", { primaryHashtag: "Enter a hashtag." });
