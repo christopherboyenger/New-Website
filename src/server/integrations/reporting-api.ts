@@ -8,7 +8,6 @@ import {
   MAX_PAGE_SIZE,
   postSorts,
   type DailyMetricName,
-  type DailyReport,
   type DailyReportParams,
   type PostQueryParams,
 } from "../reporting";
@@ -193,19 +192,4 @@ export function assertKnownParams(params: URLSearchParams, allowed: readonly str
   for (const key of new Set(params.keys())) {
     if (!allowed.includes(key)) throw invalid(`Unknown parameter: ${key.slice(0, 40)}.`);
   }
-}
-
-/** Public name of the third-party install estimate series in this product's API. */
-const installSourceNames: Record<string, string> = { noise: "estimate" };
-
-/** Maps internal install source keys to this product's public names. */
-export function presentDailyReport(report: DailyReport): DailyReport {
-  return {
-    ...report,
-    data: report.data.map((row) =>
-      row.installs_by_source
-        ? { ...row, installs_by_source: Object.fromEntries(Object.entries(row.installs_by_source).map(([k, v]) => [installSourceNames[k] ?? k, v])) }
-        : row,
-    ),
-  };
 }

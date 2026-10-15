@@ -55,7 +55,7 @@ export function Dialog({ open, onClose, title, description, children, footer, si
       ref={ref}
       aria-labelledby={titleId}
       className={cn(
-        "m-auto w-[calc(100%-2rem)] rounded-[14px] border border-line bg-surface p-0 text-ink shadow-xl",
+        "m-auto w-[calc(100%-2rem)] whitespace-normal rounded-[14px] border border-line bg-surface p-0 text-ink shadow-xl",
         widths[size],
         className,
       )}

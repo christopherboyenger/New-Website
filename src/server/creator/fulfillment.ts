@@ -66,8 +66,15 @@ async function admittedCampaign(db: DbLike, creatorId: string, campaignId: strin
     .where(and(eq(campaignMemberships.campaignId, campaignId), eq(campaignMemberships.creatorId, creatorId), eq(campaignMemberships.status, "approved")))
     .limit(1);
   if (!row || row.removedAt) return null;
-  const { targeting, removedAt: _removedAt, ...rest } = row;
-  return { ...rest, targetPlatforms: targeting.platforms };
+  return {
+    id: row.id,
+    orgId: row.orgId,
+    name: row.name,
+    status: row.status,
+    primaryHashtag: row.primaryHashtag,
+    brandName: row.brandName,
+    targetPlatforms: row.targeting.platforms,
+  };
 }
 
 async function distributedPlaybook(db: DbLike, campaign: AdmittedCampaign, playbookId: string) {
@@ -234,7 +241,7 @@ export async function submitPost(input: SubmissionInput): Promise<ActionResult<{
       if (!row) return false;
       if (data.grantAdRights) {
         await tx.insert(adRightsGrants).values({
-          id: `rgt_${postId.slice(4)}`,
+          id: newId("rgt"),
           orgId: campaign.orgId,
           creatorId: ctx.creator.id,
           postId,

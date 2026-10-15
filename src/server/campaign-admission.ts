@@ -406,7 +406,9 @@ export async function listJoinRequests(ctx: OrgContext, page = 1): Promise<Paged
       ...r,
       removed: Boolean(r.removed),
       requestedAt: r.requestedAt.toISOString(),
-      accounts: accounts.filter((a) => a.creatorId === r.creatorId).map(({ creatorId: _creatorId, ...a }) => a),
+      accounts: accounts
+        .filter((a) => a.creatorId === r.creatorId)
+        .map((a) => ({ platform: a.platform, handle: a.handle, verification: a.verification, dedicated: a.dedicated })),
     })),
   };
 }

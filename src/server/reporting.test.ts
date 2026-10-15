@@ -111,9 +111,9 @@ describe("reporting", () => {
   });
 
   it("blends installs: store actuals win, estimates only fill gaps", () => {
-    expect(blendInstalls(new Map([["app_store", 10], ["noise", 99]]))).toEqual({ value: 10, source: "store" });
+    expect(blendInstalls(new Map([["app_store", 10], ["estimate", 99]]))).toEqual({ value: 10, source: "store" });
     expect(blendInstalls(new Map([["app_store", 10], ["play_store", 5]]))).toEqual({ value: 15, source: "store" });
-    expect(blendInstalls(new Map([["noise", 7]]))).toEqual({ value: 7, source: "estimated" });
+    expect(blendInstalls(new Map([["estimate", 7]]))).toEqual({ value: 7, source: "estimated" });
     expect(blendInstalls(new Map())).toBeNull();
   });
 });

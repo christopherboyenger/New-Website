@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import { createTestDb } from "../../tests/support/db";
 import { addMember, makeCampaign, makeOrg, makeUser } from "../../tests/support/factories";
@@ -256,9 +256,16 @@ describe("checkCampaignHashtagAction", () => {
     expect(await checkCampaignHashtagAction(org.slug, "anything")).toMatchObject({ ok: false, code: "not_found" });
 
     await signInAs(owner.id);
-    let last;
-    for (let i = 0; i < 61; i++) last = await checkCampaignHashtagAction(org.slug, `tag${i}x`);
-    expect(last).toMatchObject({ ok: false, code: "rate_limited" });
+    // Freeze the clock so all 61 checks fall in the same one-minute window.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-15T12:00:30Z"));
+    try {
+      let last;
+      for (let i = 0; i < 61; i++) last = await checkCampaignHashtagAction(org.slug, `tag${i}x`);
+      expect(last).toMatchObject({ ok: false, code: "rate_limited" });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

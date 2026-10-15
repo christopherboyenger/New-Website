@@ -236,7 +236,7 @@ export const onboardingDrafts = pgTable("onboarding_drafts", {
   stepKey: text("step_key").notNull(),
   data: jsonb("data").$type<Record<string, unknown>>().notNull().default(sql`'{}'::jsonb`),
   /** Organization created from this draft (set when brand basics are first saved). */
-  orgId: text("org_id").references(() => organizations.id),
+  orgId: text("org_id").references(() => organizations.id, { onDelete: "set null" }),
   updatedAt: ts("updated_at").notNull().defaultNow(),
   completedAt: ts("completed_at"),
   deferredPaymentAt: ts("deferred_payment_at"),

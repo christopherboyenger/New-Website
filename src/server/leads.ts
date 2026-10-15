@@ -28,16 +28,13 @@ import { getCurrentSession } from "./auth/session";
 import { listUserOrganizations } from "./authz";
 import { getDb } from "./db/client";
 import { leads } from "./db/schema";
+import { leadCookieName, readLeadCookie } from "./lead-link";
 import { sendEmail, type EmailDeliveryStatus } from "./email";
 import { consumeRateLimit } from "./rate-limit";
 
 const LEAD_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 const IP_LIMIT = { count: 30, windowSeconds: 60 * 60 };
 const EMAIL_LIMIT = { count: 5, windowSeconds: 60 * 60 };
-
-function leadCookieName(): string {
-  return site.appUrl.startsWith("https://") ? "__Host-lead" : "lead";
-}
 
 /** Values the funnel shows again when the same visitor returns (their own lead only). */
 export interface VisitorLead {
@@ -175,8 +172,8 @@ export async function getVisitorLead(): Promise<VisitorLead | null> {
  * ------------------------------------------------------------------------- */
 
 async function loadVisitorLeadRow() {
-  const id = (await cookies()).get(leadCookieName())?.value;
-  if (!id || !/^lead_[a-z0-9]{20}$/.test(id)) return null;
+  const id = await readLeadCookie();
+  if (!id) return null;
   const db = await getDb();
   const [row] = await db.select().from(leads).where(eq(leads.id, id)).limit(1);
   return row ?? null;

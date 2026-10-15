@@ -10,6 +10,7 @@
 import { redirect } from "next/navigation";
 import { fail, ok, runAction, type ActionResult } from "../action-result";
 import { emailProviderConfigured, type EmailDeliveryStatus } from "../email";
+import { linkVisitorLeadToUser } from "../lead-link";
 import { consumeRateLimit } from "../rate-limit";
 import { requestPasswordReset, resetPassword, sendVerificationEmail, signIn, signUp, verifyEmailToken } from "./service";
 import { destroyCurrentSession, getCurrentSession, isSafeReturnPath } from "./session";
@@ -69,6 +70,10 @@ export async function signUpAction(_prev: AuthFormState | null, formData: FormDa
       const code = /too many/i.test(outcome.error) ? "rate_limited" : "validation";
       return fail(outcome.error, code, outcome.fieldErrors);
     }
+    // Attribute the account to the visitor's own `/start` lead (same email only); never blocks sign-up.
+    await linkVisitorLeadToUser(outcome.value.userId, values.email).catch((error: unknown) => {
+      console.error("[auth] lead linking failed:", error instanceof Error ? error.message : error);
+    });
     redirect(safeNext(formData, "/onboarding"));
   });
   return { ...result, values };

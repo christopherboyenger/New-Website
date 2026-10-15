@@ -205,12 +205,6 @@ export async function dailyReport(orgId: string, params: DailyReportParams): Pro
   };
 }
 
-const sourceKey: Record<"app_store" | "play_store" | "estimate", string> = {
-  app_store: "app_store",
-  play_store: "play_store",
-  estimate: "noise",
-};
-
 async function installsByDay(orgId: string, range: DateRange): Promise<Map<string, Map<string, number>>> {
   const db = await getDb();
   const rows = await db
@@ -220,8 +214,8 @@ async function installsByDay(orgId: string, range: DateRange): Promise<Map<strin
   const out = new Map<string, Map<string, number>>();
   for (const r of rows) {
     const day = out.get(r.day) ?? new Map<string, number>();
-    // Raw series keyed by source. The estimate series is overall (never split by platform).
-    day.set(sourceKey[r.source], r.installs);
+    // Raw series keyed by source (`app_store`, `play_store`, `estimate`). The estimate series is overall (never split by platform).
+    day.set(r.source, r.installs);
     out.set(r.day, day);
   }
   return out;
@@ -236,7 +230,7 @@ export function blendInstalls(perSource: Map<string, number>): { value: number; 
   const apple = perSource.get("app_store");
   const google = perSource.get("play_store");
   if (apple !== undefined || google !== undefined) return { value: (apple ?? 0) + (google ?? 0), source: "store" };
-  const estimate = perSource.get("noise");
+  const estimate = perSource.get("estimate");
   if (estimate !== undefined) return { value: estimate, source: "estimated" };
   return null;
 }

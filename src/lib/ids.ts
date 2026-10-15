@@ -35,7 +35,9 @@ export type IdPrefix =
   | "aud"
   | "eml"
   | "lead"
-  | "obd";
+  | "obd"
+  | "ref"
+  | "rgt";
 
 export function randomString(length: number): string {
   const bytes = new Uint8Array(length);

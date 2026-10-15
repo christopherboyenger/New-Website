@@ -92,7 +92,7 @@ export function draftReducer(draft: Draft, action: DraftAction): Draft {
     case "addReference":
       return withUgc(draft, (c) => ({
         ...c,
-        references: [...c.references, { id: newId("med"), ...action.reference }],
+        references: [...c.references, { id: newId("ref"), ...action.reference }],
       }));
     case "removeReference":
       return withUgc(draft, (c) => ({
@@ -126,7 +126,7 @@ export function draftReducer(draft: Draft, action: DraftAction): Draft {
           s.id === action.id
             ? {
                 ...s,
-                imageOptions: [...s.imageOptions, { id: newId("med"), ...action.image }],
+                imageOptions: [...s.imageOptions, { id: newId("ref"), ...action.image }],
               }
             : s,
         ),
@@ -179,7 +179,7 @@ export function instantiateTemplateContent(content: PlaybookContent): PlaybookCo
     clone.slides = clone.slides.map((s) => ({
       ...s,
       id: newId("sld"),
-      imageOptions: s.imageOptions.map((i) => ({ ...i, id: newId("med") })),
+      imageOptions: s.imageOptions.map((i) => ({ ...i, id: newId("ref") })),
     }));
   return clone;
 }

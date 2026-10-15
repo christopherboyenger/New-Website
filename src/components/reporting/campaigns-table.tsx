@@ -29,6 +29,7 @@ export function CampaignsTable({
   range,
   canManage,
   metricsAvailable,
+  highlightId = null,
 }: {
   slug: string;
   rows: CampaignRow[];
@@ -39,6 +40,8 @@ export function CampaignsTable({
   canManage: boolean;
   /** False while no metrics source has reported (metrics show "—", never 0). */
   metricsAvailable: boolean;
+  /** A just-created campaign to call out (from `created=<id>` in the URL). */
+  highlightId?: string | null;
 }) {
   const ids = useMemo(() => rows.map((r) => r.id), [rows]);
   const selection = useRowSelection(ids);
@@ -95,7 +98,11 @@ export function CampaignsTable({
           </THead>
           <tbody>
             {rows.map((row) => (
-              <TR key={row.id} className={selection.selected.has(row.id) ? "bg-selected/40" : undefined}>
+              <TR
+                key={row.id}
+                data-highlighted={row.id === highlightId ? "true" : undefined}
+                className={selection.selected.has(row.id) ? "bg-selected/40" : row.id === highlightId ? "bg-selected/60 shadow-[inset_3px_0_0_var(--color-ink)]" : undefined}
+              >
                 <TD>
                   <SelectionCheckbox label={`Select ${row.name}`} checked={selection.selected.has(row.id)} onChange={() => selection.toggle(row.id)} />
                 </TD>
@@ -110,7 +117,9 @@ export function CampaignsTable({
                   <Link href={drilldownHrefs[row.id]} scroll={false} className="font-medium text-ink hover:underline">
                     {row.name}
                   </Link>
-                  <span className="block text-xs text-muted">Created {formatUtcDate(row.createdAt)}</span>
+                  <span className="block text-xs text-muted">
+                    {row.id === highlightId ? "Just created · " : null}Created {formatUtcDate(row.createdAt)}
+                  </span>
                 </TD>
                 <TD className="text-right tabular-nums">{metric(formatCount(row.views))}</TD>
                 <TD className="text-right tabular-nums">{metric(formatSpend(row.spendCents))}</TD>

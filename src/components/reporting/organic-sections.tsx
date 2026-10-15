@@ -15,6 +15,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { EmptyState, InlineAlert } from "@/components/ui/feedback";
 import { Card } from "@/components/ui/layout";
 import { Pagination } from "@/components/ui/table";
+import { getCampaign } from "@/server/campaigns-core";
 import {
   awaitingFirstMetrics,
   listCampaignRows,
@@ -119,12 +120,14 @@ function SectionNotices({ awaiting, freshness, permissionNote }: { awaiting: boo
  * Campaigns
  * ------------------------------------------------------------------------- */
 
-export async function CampaignsSection({ ctx, canManage }: { ctx: SectionContext; canManage: boolean }) {
+export async function CampaignsSection({ ctx, canManage, createdId = null }: { ctx: SectionContext; canManage: boolean; createdId?: string | null }) {
   const sort = campaignSorts.find((s) => s === ctx.state.sort) ?? "views";
-  const [page, awaiting, freshness] = await Promise.all([
+  const [page, awaiting, freshness, created] = await Promise.all([
     listCampaignRows(ctx.orgId, { range: ctx.state.range, sort, order: ctx.state.order, page: ctx.state.page }),
     awaitingFirstMetrics(ctx.orgId),
     loadMetricsFreshness(ctx.orgId),
+    // Tenant-qualified: an ID from another workspace (or an unknown one) is simply ignored.
+    createdId ? getCampaign(ctx.orgId, createdId) : Promise.resolve(null),
   ]);
 
   if (page.total === 0) {
@@ -152,6 +155,7 @@ export async function CampaignsSection({ ctx, canManage }: { ctx: SectionContext
 
   return (
     <>
+      {created ? <CreatedCampaignNotice name={created.name} status={created.status} visible={page.rows.some((r) => r.id === created.id)} /> : null}
       <SectionNotices
         awaiting={awaiting}
         freshness={freshness}
@@ -160,6 +164,7 @@ export async function CampaignsSection({ ctx, canManage }: { ctx: SectionContext
       <Card className="overflow-hidden">
         {page.rows.length ? (
           <CampaignsTable
+            highlightId={created?.id ?? null}
             slug={ctx.slug}
             rows={page.rows}
             sortLinks={sortLinks(ctx, campaignSorts, campaignSortLabels)}
@@ -176,6 +181,19 @@ export async function CampaignsSection({ ctx, canManage }: { ctx: SectionContext
         </div>
       </Card>
     </>
+  );
+}
+
+/** Shown after the New Campaign flow: the campaign exists, but nothing runs or spends until someone activates it. */
+function CreatedCampaignNotice({ name, status, visible }: { name: string; status: string; visible: boolean }) {
+  const inactive = status === "inactive";
+  return (
+    <InlineAlert tone="success" title={`Campaign “${name}” created`} className="mb-4">
+      {inactive
+        ? "It stays Inactive until you activate it, so nothing is spent and creators can't post to it yet."
+        : "Its current status is shown in the Active column."}
+      {visible ? " It's highlighted in the table below." : null}
+    </InlineAlert>
   );
 }
 

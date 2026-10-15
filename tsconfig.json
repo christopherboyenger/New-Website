@@ -36,20 +36,11 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    ".next-campaign-form/types/**/*.ts",
-    ".next-campaign-form/dev/types/**/*.ts",
-    ".next-playbooks/types/**/*.ts",
-    ".next-playbooks/dev/types/**/*.ts",
-    ".next-ads/types/**/*.ts",
-    ".next-ads/dev/types/**/*.ts",
-    ".next-people/types/**/*.ts",
-    ".next-people/dev/types/**/*.ts",
-    ".next-marketing/types/**/*.ts",
-    ".next-marketing/dev/types/**/*.ts",
-    ".next-ops/types/**/*.ts",
-    ".next-ops/dev/types/**/*.ts"
+    ".next-creator-portal/types/**/*.ts",
+    ".next-creator-portal/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".next-*"
   ]
 }

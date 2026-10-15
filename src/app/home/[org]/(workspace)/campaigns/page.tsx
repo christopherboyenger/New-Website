@@ -30,7 +30,10 @@ export async function generateMetadata({ params }: { params: Promise<{ org: stri
 export default async function OrganicPage({ params, searchParams }: { params: Promise<{ org: string }>; searchParams: Promise<SearchParams> }) {
   const { org: slug } = await params;
   const ctx = await requireOrgPage(slug, `/home/${slug}/campaigns`);
-  const state = parseOrganicState(await searchParams);
+  const query = await searchParams;
+  const state = parseOrganicState(query);
+  // `created=<campaignId>` (set by the New Campaign flow) highlights that row; it is not part of the canonical URL state.
+  const createdId = state.tab === "campaigns" ? parseCreatedCampaignId(query.created) : null;
   const basePath = `/home/${ctx.org.slug}/campaigns`;
   const orgId = ctx.org.id;
   const canManage = hasPermission(ctx, "campaign:manage");
@@ -75,7 +78,7 @@ export default async function OrganicPage({ params, searchParams }: { params: Pr
       <OrganicTabs basePath={basePath} state={state} counts={{ ...counts, posts }} campaignFilter={labels.campaign} />
       <Suspense key={serializeOrganicState(state).toString()} fallback={<OrganicSectionSkeleton tab={state.tab} />}>
         {state.tab === "campaigns" ? (
-          <CampaignsSection ctx={section} canManage={canManage} />
+          <CampaignsSection ctx={section} canManage={canManage} createdId={createdId} />
         ) : state.tab === "playbooks" ? (
           <PlaybooksSection ctx={section} canPublish={hasPermission(ctx, "playbook:publish")} canEdit={canEditPlaybooks} />
         ) : (
@@ -84,6 +87,11 @@ export default async function OrganicPage({ params, searchParams }: { params: Pr
       </Suspense>
     </PageContainer>
   );
+}
+
+function parseCreatedCampaignId(value: string | string[] | undefined): string | null {
+  const raw = (Array.isArray(value) ? value[0] : value)?.trim();
+  return raw && /^[A-Za-z0-9_-]{1,64}$/.test(raw) ? raw : null;
 }
 
 /** A create action the viewer's role doesn't allow: shown disabled with the reason next to it. */

@@ -10,8 +10,9 @@
  *   else — no provider call, no activation, no spend;
  * - no performance numbers are shown for any ad.
  *
- * A draft needs a connected installation (status `connected`) for the chosen
- * provider, an eligible source with recorded paid-use rights, and the ad
+ * A draft needs a launch-ready installation for the chosen provider (status
+ * `connected` and every launch scope granted — `ads_management` for Meta; see
+ * src/domain/ad-launch-readiness.ts), an eligible source with recorded paid-use rights, and the ad
  * settings version the form was built from (stale defaults → conflict).
  * Every export re-authorizes from the URL slug; every query is qualified with
  * the authorized org.
@@ -21,6 +22,7 @@ import { and, count, desc, eq, gte, inArray, isNull, lt, notInArray } from "driz
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { addDays, dayToDate, type DateRange } from "@/domain/date-range";
+import { isLaunchReady, missingLaunchScopes } from "@/domain/ad-launch-readiness";
 import { generateAdName, resolveAdName } from "@/domain/ad-naming";
 import { MAX_COPY_LENGTH, providerPlatform, resolveTrackingUrl, tokensIn, type AdProvider } from "@/domain/tracking-params";
 import type { Platform } from "@/domain/campaign";
@@ -54,11 +56,13 @@ export interface AdConnection {
   status: IntegrationStatus;
   /** First selected ad account, when the provider connection recorded one. */
   accountName: string | null;
+  /** Launch scopes the provider connection was not granted (empty when none are missing). */
+  missingLaunchScopes: string[];
 }
 
 export interface AdConnectionState {
   installations: AdConnection[];
-  /** Providers whose installation is verified `connected`. */
+  /** Providers whose installation is launch-ready: verified `connected` with every launch scope granted. */
   connected: AdProvider[];
 }
 
@@ -100,13 +104,24 @@ export interface AdsOverview {
 
 async function readConnections(db: DbLike, orgId: string): Promise<AdConnectionState> {
   const rows = await db
-    .select({ provider: integrationInstallations.provider, status: integrationInstallations.status, selectedAssets: integrationInstallations.selectedAssets })
+    .select({
+      provider: integrationInstallations.provider,
+      status: integrationInstallations.status,
+      selectedAssets: integrationInstallations.selectedAssets,
+      grantedScopes: integrationInstallations.grantedScopes,
+    })
     .from(integrationInstallations)
     .where(and(eq(integrationInstallations.orgId, orgId), inArray(integrationInstallations.provider, adProviders)));
-  const installations = rows
-    .map((r) => ({ provider: r.provider as AdProvider, status: r.status, accountName: r.selectedAssets[0]?.name ?? null }))
+  const installations: AdConnection[] = rows
+    .map((r) => ({
+      provider: r.provider as AdProvider,
+      status: r.status,
+      accountName: r.selectedAssets[0]?.name ?? null,
+      missingLaunchScopes: missingLaunchScopes(r.provider as AdProvider, r.grantedScopes),
+    }))
     .sort((a, b) => a.provider.localeCompare(b.provider));
-  return { installations, connected: installations.filter((i) => i.status === "connected").map((i) => i.provider) };
+  const ready = rows.filter((r) => isLaunchReady({ provider: r.provider as AdProvider, status: r.status, grantedScopes: r.grantedScopes }));
+  return { installations, connected: adProviders.filter((p) => ready.some((r) => r.provider === p)) };
 }
 
 function rangeBounds(range: DateRange) {
@@ -445,10 +460,15 @@ export async function saveLaunchDraft(slug: string, input: LaunchDraftInput): Pr
     const platform = providerPlatform[data.provider];
 
     const [installation] = await db
-      .select({ id: integrationInstallations.id })
+      .select({ id: integrationInstallations.id, grantedScopes: integrationInstallations.grantedScopes })
       .from(integrationInstallations)
       .where(and(eq(integrationInstallations.orgId, orgId), eq(integrationInstallations.provider, data.provider), eq(integrationInstallations.status, "connected")))
       .limit(1);
+    if (installation && !isLaunchReady({ provider: data.provider, status: "connected", grantedScopes: installation.grantedScopes })) {
+      return fail(`Your ${providerName[data.provider]} connection can read reports but can't create ads. Reconnect it in Integrations and allow ad management.`, "validation", {
+        provider: "This connection is missing the ad management permission.",
+      });
+    }
     if (!installation) {
       return fail(`Connect a ${providerName[data.provider]} ad account in Integrations before saving a ${providerName[data.provider]} draft.`, "validation", {
         provider: "This ad account isn't connected.",

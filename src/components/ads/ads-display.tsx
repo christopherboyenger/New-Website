@@ -48,6 +48,14 @@ export function formatUtcDate(iso: string): string {
   return utcDate.format(new Date(iso));
 }
 
+/** What the ads UI needs to know about one Meta/TikTok installation. */
+export interface ConnectionSummary {
+  provider: AdProvider;
+  status: IntegrationStatus;
+  /** Launch scopes not granted; a `connected` installation with any missing can't create ads. */
+  missingLaunchScopes?: readonly string[];
+}
+
 const statusText: Partial<Record<IntegrationStatus, string>> = {
   reauthorization_required: "needs to be reauthorized",
   error: "reported an error",
@@ -70,7 +78,7 @@ export function AdAccountPrerequisite({
 }: {
   message: ReactNode;
   integrationsHref: string;
-  installations: Array<{ provider: AdProvider; status: IntegrationStatus }>;
+  installations: ConnectionSummary[];
   headingLevel?: 2 | 3;
 }) {
   const Heading = headingLevel === 2 ? "h2" : "h3";
@@ -91,14 +99,17 @@ export function AdAccountPrerequisite({
 }
 
 /** Warnings for Meta/TikTok installations that exist but can't be used right now. */
-export function ConnectionProblems({ installations, className }: { installations: Array<{ provider: AdProvider; status: IntegrationStatus }>; className?: string }) {
-  const problems = installations.filter((i) => statusText[i.status]);
+export function ConnectionProblems({ installations, className }: { installations: ConnectionSummary[]; className?: string }) {
+  const problems = installations.flatMap((i) => {
+    const text = statusText[i.status] ?? (i.status === "connected" && i.missingLaunchScopes?.length ? "can read reports but wasn't granted permission to create ads — reconnect it and allow ad management" : null);
+    return text ? [{ provider: i.provider, text }] : [];
+  });
   if (!problems.length) return null;
   return (
     <div className={className}>
       {problems.map((p) => (
         <InlineAlert key={p.provider} tone="warning" className="mt-2 first:mt-0">
-          Your {providerLabels[p.provider]} connection {statusText[p.status]}.
+          Your {providerLabels[p.provider]} connection {p.text}.
         </InlineAlert>
       ))}
     </div>

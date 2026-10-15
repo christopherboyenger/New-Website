@@ -68,7 +68,7 @@ export async function AdsSection({ slug, view, range, page, pageHref }: AdsSecti
     );
   }
 
-  const connected = data.connection.installations.filter((i) => i.status === "connected");
+  const connected = data.connection.installations.filter((i) => data.connection.connected.includes(i.provider));
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted">

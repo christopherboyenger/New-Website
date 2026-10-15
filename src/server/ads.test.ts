@@ -11,9 +11,14 @@ import { adLaunches, adRightsGrants, adSubmissions, integrationInstallations } f
 
 const range = { from: "2000-01-01", to: "2100-12-31" };
 
-async function connect(orgId: string, provider: "meta_ads" | "tiktok_ads", status: IntegrationStatus = "connected") {
+async function connect(
+  orgId: string,
+  provider: "meta_ads" | "tiktok_ads",
+  status: IntegrationStatus = "connected",
+  grantedScopes: string[] = provider === "meta_ads" ? ["ads_read", "ads_management"] : [],
+) {
   const db = await getDb();
-  await db.insert(integrationInstallations).values({ id: newId("int"), orgId, provider, status, selectedAssets: [{ id: "act_1", name: "Test ad account", kind: "ad_account" }] });
+  await db.insert(integrationInstallations).values({ id: newId("int"), orgId, provider, status, grantedScopes, selectedAssets: [{ id: "act_1", name: "Test ad account", kind: "ad_account" }] });
 }
 
 async function grant(orgId: string, post: { id: string; creatorId: string }, overrides: Partial<typeof adRightsGrants.$inferInsert> = {}) {
@@ -70,6 +75,19 @@ describe("launch drafts", () => {
     expect(await saveLaunchDraft(org.slug, draft(post.id))).toMatchObject({ ok: false, code: "validation", fieldErrors: { provider: expect.any(String) } });
     await connect(org.id, "tiktok_ads", "reauthorization_required");
     expect(await saveLaunchDraft(org.slug, draft(post.id))).toMatchObject({ ok: false, code: "validation" });
+    const db = await getDb();
+    expect(await db.select().from(adLaunches)).toHaveLength(0);
+  });
+
+  it("requires the Meta connection to include ads_management", async () => {
+    const { org, post } = await setup();
+    await grant(org.id, post);
+    await connect(org.id, "meta_ads", "connected", ["ads_read"]);
+    const form = await loadLaunchDraftForm(org.slug);
+    expect(form.ok && form.data.connection.connected).toEqual([]);
+    expect(form.ok && form.data.connection.installations).toMatchObject([{ provider: "meta_ads", status: "connected", missingLaunchScopes: ["ads_management"] }]);
+    const r = await saveLaunchDraft(org.slug, draft(post.id, { provider: "meta_ads", cta: "LEARN_MORE", bodyCopy: "By Jo Maker" }));
+    expect(r).toMatchObject({ ok: false, code: "validation", fieldErrors: { provider: expect.stringMatching(/ad management/) } });
     const db = await getDb();
     expect(await db.select().from(adLaunches)).toHaveLength(0);
   });
