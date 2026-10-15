@@ -37,6 +37,8 @@ const { users, organizations, memberships } = await import("../src/server/db/sch
 const { hashPassword } = await import("../src/server/auth/password.ts");
 const { createOrganization } = await import("../src/server/organizations.ts");
 const { newId } = await import("../src/lib/ids.ts");
+const { generateToken, tokenDigest } = await import("../src/server/crypto.ts");
+const { sessions } = await import("../src/server/db/schema/index.ts");
 
 const db = await getDb();
 const email = values.email.trim().toLowerCase();
@@ -61,4 +63,8 @@ if (values.org) {
   if (values.plan === "unlimited") await db.update(organizations).set({ planId: "unlimited" }).where(eq(organizations.id, org.id));
   console.log(`Created empty workspace /home/${org.slug} (plan: ${values.plan})`);
 }
+// A 30-day session for scripted browsers (Playwright `context.addCookies`) and curl.
+const token = generateToken();
+await db.insert(sessions).values({ id: newId("ses"), tokenDigest: tokenDigest(token, "session"), userId: user.id, expiresAt: new Date(Date.now() + 30 * 86_400_000) });
+console.log(`Session cookie: session=${token}`);
 process.exit(0);

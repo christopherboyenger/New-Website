@@ -54,6 +54,13 @@ export const commercialPolicy = {
     enabled: false,
     capCents: 500_00,
   },
+  /**
+   * Publishing gate: "Add a payment method to put your playbook live" (B07).
+   * Publishing never charges; it only requires a provider-confirmed payment method.
+   */
+  publishing: {
+    requiresPaymentMethod: true,
+  },
   /** Card validation charge observed in reference Billing. Disabled until the disclosure policy is decided. */
   paymentSetupValidationCharge: {
     enabled: false,
