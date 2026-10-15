@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { createTestDb } from "../../tests/support/db";
 import { resetRequestContext, signInAs } from "../../tests/support/request-context";
@@ -6,6 +6,9 @@ import { makeCampaign, makeOrg, makeUser } from "../../tests/support/factories";
 import type { OnboardingStepKey } from "@/domain/onboarding";
 import { getDb } from "./db/client";
 import { auditLog, billingAccounts, campaigns, memberships, onboardingDrafts, organizations, playbooks } from "./db/schema";
+import { createFakeStripe } from "./billing/stripe-fake";
+import { setStripeForTesting } from "./billing/stripe";
+import { resetEnvForTesting } from "./env";
 import { beginPaymentSetup, checkPaymentStatus, completeOnboarding, estimateReach, loadOnboardingView, saveOnboardingStep } from "./onboarding";
 
 const script: Array<[OnboardingStepKey, Record<string, unknown>]> = [
@@ -336,5 +339,58 @@ describe("onboarding server commands", () => {
     const estimate = await estimateReach({ dailyBudgetCents: 1_000_00 });
     expect(estimate.ok && estimate.data.status).toBe("unavailable");
     expect((await estimateReach({ dailyBudgetCents: 10_00 })).ok).toBe(false);
+  });
+});
+
+describe("onboarding payment status after the provider return", () => {
+  const stripeEnv = ["STRIPE_SECRET_KEY", "STRIPE_UNLIMITED_PRICE_ID"] as const;
+  let fake: ReturnType<typeof createFakeStripe>;
+
+  beforeEach(async () => {
+    await createTestDb();
+    resetRequestContext();
+    process.env.STRIPE_SECRET_KEY = "sk_test_fake";
+    process.env.STRIPE_UNLIMITED_PRICE_ID = "price_unlimited";
+    resetEnvForTesting();
+    fake = createFakeStripe();
+    setStripeForTesting(fake.stripe);
+  });
+
+  afterEach(() => {
+    for (const key of stripeEnv) delete process.env[key];
+    resetEnvForTesting();
+    setStripeForTesting(null);
+    vi.restoreAllMocks();
+  });
+
+  it("reconciles with the provider so a completed card setup reads as ready", async () => {
+    const user = await makeUser();
+    await signInAs(user.id);
+    await saveThrough("billing");
+    const setup = await beginPaymentSetup();
+    expect(setup.ok && setup.data.status).toBe("redirect");
+    const open = await checkPaymentStatus();
+    expect(open.ok && open.data.status).toBe("pending");
+
+    const session = fake.state.sessions.get("cs_test_1")!;
+    session.status = "complete";
+    session.setup_intent = "seti_1";
+    fake.state.setupIntents.set("seti_1", { id: "seti_1", customer: "cus_fake_1", status: "succeeded", payment_method: "pm_1" });
+    fake.state.paymentMethods.set("pm_1", { id: "pm_1", customer: "cus_fake_1", type: "card", card: { brand: "visa", last4: "1881" } });
+
+    const status = await checkPaymentStatus();
+    expect(status.ok && status.data).toEqual({ status: "ready", brand: "visa", last4: "1881" });
+  });
+
+  it("falls back to the stored state when the provider can't be reached", async () => {
+    const user = await makeUser();
+    await signInAs(user.id);
+    await saveThrough("billing");
+    await beginPaymentSetup();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    fake.fake.checkout.sessions.retrieve.mockRejectedValueOnce(Object.assign(new Error("network down"), { type: "StripeConnectionError" }));
+
+    const status = await checkPaymentStatus();
+    expect(status.ok && status.data.status).toBe("pending");
   });
 });

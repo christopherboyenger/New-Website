@@ -31,7 +31,8 @@ import { ConflictError, fail, ok, runAction, type ActionResult } from "./action-
 import { recordAudit } from "./audit";
 import { getCurrentSession } from "./auth/session";
 import { listUserOrganizations, NotFoundError, requireOrgAction, type OrgContext } from "./authz";
-import { getPaymentReadiness, startPaymentMethodSetup, type PaymentReadiness, type PaymentSetupStart } from "./billing/payment-setup";
+import { getPaymentReadiness, reconcilePaymentSetup, startPaymentMethodSetup, type PaymentReadiness, type PaymentSetupStart } from "./billing/payment-setup";
+import { providerErrorSummary } from "./billing/provider";
 import { createCampaign, getCampaign, HashtagTakenError, isHashtagAvailable } from "./campaigns-core";
 import { getDb } from "./db/client";
 import { emailOutbox, memberships, onboardingDrafts, onboardingOrgClaims, organizations } from "./db/schema";
@@ -371,13 +372,23 @@ export async function beginPaymentSetup(): Promise<ActionResult<PaymentSetupStar
   });
 }
 
-/** Re-reads the provider-confirmed payment state (never inferred from a browser redirect). */
+/**
+ * Payment state after the provider return or "Check again": asks the provider
+ * for the latest card-setup outcome (the same effect a webhook has) and falls
+ * back to the stored provider-confirmed state if the provider can't be
+ * reached. Never inferred from the browser redirect itself.
+ */
 export async function checkPaymentStatus(): Promise<ActionResult<PaymentReadiness>> {
   return runAction(async () => {
     const current = await getCurrentSession();
     if (!current) return fail(SIGNED_OUT_MESSAGE, "forbidden");
     const ctx = await paymentStepContext(current.user.id, "billing:view");
-    return ok(await getPaymentReadiness(ctx.org.id));
+    try {
+      return ok(await reconcilePaymentSetup(ctx));
+    } catch (error) {
+      console.error("[onboarding] payment reconcile failed; using stored state:", providerErrorSummary(error));
+      return ok(await getPaymentReadiness(ctx.org.id));
+    }
   });
 }
 
