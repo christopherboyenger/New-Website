@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
   // Request-time rendering everywhere: every workspace page depends on the
   // signed-in session and tenant data, so Cache Components is left off.
   serverExternalPackages: ["@electric-sql/pglite"],
+  // Lets parallel local dev servers use separate build folders (NEXT_DIST_DIR=.next-<name>).
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
   turbopack: {
     rules: {
